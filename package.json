@@ -1,24 +1,24 @@
 {
-  "name": "com.twinny.twe26",
-  "displayName": "Twinny Engine",
-  "version": "26.0.1",
-  "type": "tool",
-  "unity": "6000.0",
-  "unityRelease": "43f1",
-  "description": "A framework for Twinny Experiences Apps development.\n\n",
-  "documentationUrl": "",
-  "changelogUrl": "",
-  "licensesUrl": "",
-  "keywords": [],
-  "author": {
-    "name": "Twinny VR",
-    "email": "conceptfac@gmail.com",
-    "url": "https://twinnyvr.co/"
-  },
-  "repository": {
-    "type": "git",
-    "url": ""
-  },
-  "samples": [
-  ]
+    "name": "com.twinny.twe26",
+    "displayName": "Twinny Engine",
+    "version": "26.0.1",
+    "type": "tool",
+    "unity": "6000.0",
+    "unityRelease": "43f1",
+    "description": "A framework for Twinny Experiences Apps development.\n\nhttps://github.com/Twinny-VR/Twinny.Twe26.git",
+    "documentationUrl": "",
+    "changelogUrl": "",
+    "licensesUrl": "",
+    "keywords": [],
+    "author": {
+        "name": "Twinny VR",
+        "email": "conceptfac@gmail.com",
+        "url": "https://twinnyvr.co/"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Twinny-VR/Twinny.Twe26.git"
+    },
+    "samples": [
+    ]
 }
