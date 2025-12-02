@@ -1,0 +1,23 @@
+<engine:UXML xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" xmlns:twinnyEditor="Twinny.Editor" editor-extension-mode="True">
+    <Style src="project://database/Packages/com.twinny.twe26/Editor/SetupGuide/Resources/SetupStyles.uss?fileID=7433441132597879392&amp;guid=995a15ceda468b54d964864c82f7d315&amp;type=3#SetupStyles" />
+    <engine:VisualElement name="root" class="window-root">
+        <engine:VisualElement style="background-color: rgb(44, 44, 41); width: 180px;">
+            <twinnyEditor:SetupSidebarElement thumbnail="project://database/Packages/com.twinny.twe26/Editor/SetupGuide/Resources/Sprites/Icons.png?fileID=724071082&amp;guid=6d1a3c8e800c79d458055b78e773fb3e&amp;type=3#Ico_Twinny" name="WelcomeButton" class="selected enabled" style="padding-top: 16px;" />
+            <engine:ScrollView name="Sidebar" horizontal-scroller-visibility="Hidden" class="sidebar" style="flex-grow: 1; background-color: rgba(44, 44, 41, 0);" />
+        </engine:VisualElement>
+        <engine:VisualElement name="mainContent" class="content-panel" />
+        <engine:Label name="VersionInfo" text="v0.0.0" class="version-info" />
+        <engine:VisualElement name="modalOverlay" class="modal-overlay" style="display: none;">
+            <engine:VisualElement name="modalBox" class="modal-box">
+                <engine:Label name="caption" class="caption" />
+                <engine:ListView name="packagesList" class="packages-list" />
+                <engine:VisualElement name="buttons" class="buttons-box">
+                    <engine:Button name="buttonInstall" text="Instalar" />
+                    <engine:Button name="buttonCancel" text="Fechar" />
+                </engine:VisualElement>
+            </engine:VisualElement>
+        </engine:VisualElement>
+    </engine:VisualElement>
+    <engine:VisualElement name="Overlay" class="overlay" style="display: none; align-self: center; justify-content: center;" />
+    <Concept.UI.HintElement text="HintElement" active="false" name="HintElement" style="display: none;" />
+</engine:UXML>

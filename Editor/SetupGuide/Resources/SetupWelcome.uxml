@@ -1,0 +1,22 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" xmlns:quantumEditor="Quantum.Editor" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Packages/com.twinny.twe26/Editor/SetupGuide/Resources/SetupStyles.uss?fileID=7433441132597879392&amp;guid=995a15ceda468b54d964864c82f7d315&amp;type=3#SetupStyles" />
+    <engine:VisualElement name="container" section-name="welcome" section-icon="project://database/Packages/com.quantum.framework/Editor/SetupGuide/src/Sprites/Logo1.png?fileID=21300000&amp;guid=31cab48a05cc48e41998c51e16d7d27d&amp;type=3#Logo1" class="content-container">
+        <Concept.UI.AspectElement style="background-image: resource(&apos;Sprites/Banner_OpenXR&apos;); min-height: 100px;">
+            <engine:VisualElement style="flex-grow: 1; justify-content: flex-end; align-items: flex-end; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px;">
+                <engine:Label name="PackageNameLabel" text="Twinny Engine" class="h1" style="position: relative; bottom: 0; right: 0; -unity-font-definition: url(&quot;project://database/Library/unity%20default%20resources?fileID=10102&amp;guid=0000000000000000e000000000000000&amp;type=0#LegacyRuntime&quot;); color: rgb(255, 246, 182); font-size: 16px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; -unity-text-align: lower-right; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;" />
+                <engine:Label name="VersionLabel" text="Versão 0.0.0" class="h1" style="position: relative; bottom: 0; right: 0; -unity-font-definition: url(&quot;project://database/Library/unity%20default%20resources?fileID=10102&amp;guid=0000000000000000e000000000000000&amp;type=0#LegacyRuntime&quot;); color: rgb(255, 255, 255); font-size: 12px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; -unity-text-align: lower-right; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-style: normal;" />
+            </engine:VisualElement>
+        </Concept.UI.AspectElement>
+        <engine:ScrollView name="GglobalConfig" class="global-config">
+            <engine:Label name="globalConfigLabel" text="Configurações Globais" class="h2" />
+            <engine:TextField name="ProductNameField" label="Nome do Projeto:" />
+            <engine:TextField name="CompanyNameField" label="Nome da Empresa:" />
+            <engine:TextField name="VersionField" label="Versão:" />
+            <engine:VisualElement name="IconContainer" />
+        </engine:ScrollView>
+        <Concept.SmartTools.Editor.SmartBuilderView />
+        <engine:VisualElement name="Warning" class="smart-build" style="flex-grow: 1; justify-content: center; display: none;">
+            <engine:Label name="WarningLabel" text="Escolha uma plataforma para instalar ou configurar." class="info" />
+        </engine:VisualElement>
+    </engine:VisualElement>
+</engine:UXML>

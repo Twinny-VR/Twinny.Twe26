@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cbabff569b59564d9e908e07a7f3c8c, type: 3}
+  m_Name: SetupConfig
+  m_EditorClassIdentifier: 
+  visualTreeAsset: {fileID: 9197481963319205126, guid: d9557bfa8d278a54eac6dba2778d9d9b, type: 3}
+  modules:
+  - moduleType: 1
+    moduleName: com.twinny.openxr
+    moduleDisplayName: Open XR
+    moduleIcon: {fileID: -834692070, guid: 6d1a3c8e800c79d458055b78e773fb3e, type: 3}
+    moduleInstallPath: https://github.com/Twinny-VR/Twinny.OpenXR.git
+    dependencies: []
+    layout: {fileID: 0}
+  - moduleType: 2
+    moduleName: com.twinny.mobile
+    moduleDisplayName: Mobile
+    moduleIcon: {fileID: 907554699, guid: 6d1a3c8e800c79d458055b78e773fb3e, type: 3}
+    moduleInstallPath: https://github.com/Twinny-VR/Twinny.Mobile.git
+    dependencies:
+    - name: 
+      displayName: 
+      installPath: 
+    layout: {fileID: 0}
+  - moduleType: 3
+    moduleName: com.twinny.web
+    moduleDisplayName: WebGL
+    moduleIcon: {fileID: -672903846, guid: 6d1a3c8e800c79d458055b78e773fb3e, type: 3}
+    moduleInstallPath: https://github.com/Twinny-VR/Twinny.WebGL.git
+    dependencies: []
+    layout: {fileID: 0}
+  - moduleType: 4
+    moduleName: com.twinny.win
+    moduleDisplayName: Windows
+    moduleIcon: {fileID: -317762515, guid: 6d1a3c8e800c79d458055b78e773fb3e, type: 3}
+    moduleInstallPath: https://github.com/Twinny-VR/Twinny.Win.git
+    dependencies: []
+    layout: {fileID: 0}

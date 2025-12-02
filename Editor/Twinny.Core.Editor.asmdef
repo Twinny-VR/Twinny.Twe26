@@ -1,0 +1,20 @@
+{
+    "name": "Twinny.Core.Editor",
+    "rootNamespace": "Twinny.Editor",
+    "references": [
+        "ConceptFactory.Core",
+        "ConceptFactory.Core.Editor",
+        "ConceptFactory.UIEssentials",
+        "Twinny.Core",
+        "com.conceptfactory.smarttools.editor"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

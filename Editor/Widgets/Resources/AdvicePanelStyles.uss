@@ -1,0 +1,78 @@
+.advice-panel .button {
+    font-size: 14px;
+    align-self: center;
+    min-height: 32px;
+    display: flex;
+    margin-left: 4px;
+}
+
+.advice-panel {
+    flex-grow: 1;
+    flex-direction: row;
+    align-items: center;
+    align-self: stretch;
+    justify-content: space-around;
+    margin-bottom: 4px;
+    display: flex;
+    padding-top: 4px;
+    padding-right: 4px;
+    padding-bottom: 4px;
+    padding-left: 4px;
+}
+
+.advice-label {
+    -unity-font-style: bold;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    -unity-text-align: middle-left;
+    color: rgb(255, 255, 255);
+    margin-left: 4px;
+    margin-top: 4px;
+    margin-right: 4px;
+    margin-bottom: 4px;
+}
+
+.advice-icon {
+    flex-grow: 0;
+    min-width: 32px;
+    min-height: 32px;
+    background-image: resource('Sprites/Ico_Info');
+    -unity-background-image-tint-color: rgb(99, 221, 255);
+}
+
+.error .advice-label {
+    color: rgb(255, 55, 0);
+}
+
+.warning .advice-label {
+    color: rgb(255, 192, 0);
+}
+
+.valid .advice-label {
+    color: rgb(147, 255, 0);
+}
+
+.error .advice-icon {
+    background-image: resource('Sprites/Ico_Err');
+    -unity-background-image-tint-color: rgb(221, 19, 0);
+}
+
+.warning .advice-icon {
+    background-image: resource('Sprites/Ico_Warn');
+    -unity-background-image-tint-color: rgb(255, 191, 72);
+}
+
+.valid .advice-icon {
+    background-image: resource('Sprites/Ico_Valid');
+    -unity-background-image-tint-color: rgb(72, 194, 0);
+}
+
+.advice-message {
+    flex-grow: 1;
+    min-height: 32px;
+    justify-content: flex-start;
+    flex-direction: row;
+    align-items: center;
+}

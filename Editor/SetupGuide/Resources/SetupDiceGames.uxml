@@ -1,0 +1,12 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" xmlns:quantumEditor="Quantum.Editor" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Packages/com.quantum.framework/Editor/SetupGuide/src/SetupStyles.uss?fileID=7433441132597879392&amp;guid=995a15ceda468b54d964864c82f7d315&amp;type=3#SetupStyles" />
+	<quantumEditor:ModuleInfo name="container" section-title="Dice Games" section-name="dice" section-icon="project://database/Packages/com.quantum.framework/Editor/SetupGuide/src/Sprites/Icons.png?fileID=-672903846&amp;guid=6d1a3c8e800c79d458055b78e773fb3e&amp;type=3#Ico_Dices" section-platform="MOBILE" section-module="DICE_GAME" class="content-container">
+        <Concept.UI.AspectElement style="background-image: url(&quot;project://database/Packages/com.quantum.framework/Editor/SetupGuide/src/Sprites/BannersB.png?fileID=1177904424&amp;guid=bd8d5bba95cf66147ade829663c7b8a9&amp;type=3#Banner_Dices&quot;); min-height: 100px;">
+            <engine:Label name="Label" text="DICE GAMES" class="h1" style="position: absolute; bottom: 0; right: 0; -unity-font-definition: url(&quot;project://database/Library/unity%20default%20resources?fileID=10102&amp;guid=0000000000000000e000000000000000&amp;type=0#LegacyRuntime&quot;); color: rgb(255, 246, 182); font-size: 16px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px; -unity-text-align: lower-right;" />
+        </Concept.UI.AspectElement>
+        <engine:ScrollView name="runtimeConfig" class="runtime-config">
+            <engine:Label name="mobileConfigLabel" text="Configurações do Módulo&#x9;" class="h2" />
+        </engine:ScrollView>
+        <engine:ScrollView name="cameraConfig" class="runtime-config" />
+    </quantumEditor:ModuleInfo>
+</engine:UXML>
