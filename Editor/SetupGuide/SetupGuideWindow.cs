@@ -1,8 +1,8 @@
 ﻿#if UNITY_EDITOR
 
-using Concept.Editor;
 using Concept.SmartTools;
 using Concept.UI;
+using Concept.Editor;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -32,6 +32,8 @@ namespace Twinny.Editor
         private SetupSidebarElement m_welcomeButton;
 
         private VisualElement m_root;
+        private VisualElement m_splashScreen;
+        
         private ScrollView m_SideBar;
         private VisualElement m_MainContent;
 
@@ -70,6 +72,9 @@ namespace Twinny.Editor
             m_root.style.flexGrow = 1;
             rootVisualElement.Add(m_root);
 
+            m_splashScreen = m_root.Q<VisualElement>("SplashScreen");
+            m_splashScreen.style.display = DisplayStyle.Flex;
+
             // Pega referências
             m_SideBar = m_root.Q<ScrollView>("Sidebar");
             m_MainContent = m_root.Q<VisualElement>("mainContent");
@@ -97,11 +102,11 @@ namespace Twinny.Editor
             foreach (var module in _config.modules)
                await AddSidebarButton(module);
             ShowSection("welcome");
+
+               await Task.Delay(2000);
+            m_splashScreen.style.display = DisplayStyle.None;
+
         }
-
-
-
-
 
         private async Task AddSidebarButton(ModuleInfo module)
         {
@@ -283,7 +288,6 @@ namespace Twinny.Editor
             button.style.width = 30;
             button.style.marginLeft = 2;
             container.Add(button);
-
             PathPickerBinding binding = new PathPickerBinding(property, textField, button);
             textField.binding = binding;
 
