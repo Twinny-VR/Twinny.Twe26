@@ -178,7 +178,7 @@ namespace Twinny.Core
             */
             CallbackHub.CallAction<IUICallBacks>(callback => callback.OnPlatformInitialize());
 
-            bool isTestBuild = m_config.ambientType != Concept.SmartTools.AmbientType.RELEASE;
+            bool isTestBuild = m_config.ambientType != Concept.SmartTools.BuildType.RELEASE;
             if (isTestBuild)
             {
                 Debug.LogWarning("*** TEST VERSION BUILD! Unset in Config file before Release!");

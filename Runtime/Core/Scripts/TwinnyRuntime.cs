@@ -12,7 +12,7 @@ namespace Twinny.Core
     public class TwinnyRuntime : ScriptableObject
     {
         private static TwinnyRuntime m_instance;
-        public AmbientType ambientType;
+        public BuildType ambientType;
         public float fadeTime = 1f;
         public bool forceFrameRate;
         [ShowIf("forceFrameRate")]

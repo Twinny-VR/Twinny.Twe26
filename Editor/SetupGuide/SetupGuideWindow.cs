@@ -93,8 +93,13 @@ namespace Twinny.Editor
             m_overlay = m_root.Q<VisualElement>("Overlay");
             hint = m_root.Q<HintElement>("HintElement");
             HintElementExtensions.SetHint(hint);
-
+            VideoElement videoElement = m_splashScreen.Q<VideoElement>();
+            videoElement.style.display = DisplayStyle.None;
+            videoElement.OnVideoReady += () =>
+            {
+            videoElement.style.display = DisplayStyle.Flex;
             InitSections();
+            };
         }
 
         private async void InitSections()
@@ -103,8 +108,8 @@ namespace Twinny.Editor
                await AddSidebarButton(module);
             ShowSection("welcome");
 
-               await Task.Delay(2000);
-            m_splashScreen.style.display = DisplayStyle.None;
+               await Task.Delay(3000);
+          m_splashScreen.style.display = DisplayStyle.None;
 
         }
 
