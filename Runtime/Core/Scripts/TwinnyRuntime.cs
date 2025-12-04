@@ -13,7 +13,11 @@ namespace Twinny.Core
     {
         private static TwinnyRuntime m_instance;
         public BuildType ambientType;
+        public bool useCanvasTransition = true;
+        [ShowIf("useCanvasTransition")]
+        [Tooltip("Value in seconds")]
         public float fadeTime = 1f;
+
         public bool forceFrameRate;
         [ShowIf("forceFrameRate")]
         [Range(60,120)]

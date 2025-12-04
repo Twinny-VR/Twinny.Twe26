@@ -12,9 +12,6 @@ using Twinny.UI;
 using UnityEditor;
 #endif
 using UnityEngine;
-#if TWINNY_OPENXR
-using UnityEngine.XR.Management;
-#endif
 namespace Twinny.Core
 {
     public enum Platform //TODO Mudar pra BuildTarget
@@ -74,12 +71,13 @@ namespace Twinny.Core
         public static void GetCurrentPlatform()
         {
 
+
 #if UNITY_EDITOR
 
             if (EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android)
             {
+#if UNITY_META_QUEST
 
-#if TWINNY_OPENXR
                 currentPlatform = Platform.XR;
                 Debug.LogWarning("[TwinnyManager] XR Platform initialized.");
 #else
@@ -115,7 +113,7 @@ namespace Twinny.Core
 #else
                 if (Application.platform == RuntimePlatform.Android)
             {
-#if TWINNY_OPENXR
+#if UNITY_META_QUEST
                 currentPlatform = Platform.XR;
                 Debug.LogWarning("[TwinnyManager] XR Platform initialized.");
 #else
@@ -155,7 +153,7 @@ namespace Twinny.Core
                 Debug.LogError($"[TwinnyManager] Unknow Platform initialized ({Application.platform}).");
             }
 #endif
-           
+
         }
 
 
