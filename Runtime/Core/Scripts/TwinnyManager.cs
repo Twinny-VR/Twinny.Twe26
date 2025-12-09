@@ -174,7 +174,7 @@ namespace Twinny.Core
                 discordHandler.sendWarnings = m_config.sendWarnings;       
             }
             */
-            CallbackHub.CallAction<IUICallBacks>(callback => callback.OnPlatformInitialize());
+            CallbackHub.CallAction<ICallbacks>(callback => callback.OnPlatformInitialized());
 
             bool isTestBuild = m_config.ambientType != Concept.SmartTools.BuildType.RELEASE;
             if (isTestBuild)

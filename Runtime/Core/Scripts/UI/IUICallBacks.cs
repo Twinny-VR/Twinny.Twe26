@@ -11,29 +11,11 @@ namespace Twinny.UI
     {
        void OnHudStatusChanged(bool status);
         #region Experience Callbacks
-
-        void OnPlatformInitialize();
-        void OnExperienceReady();
-        void OnExperienceFinished(bool isRunning);
         void OnLoadExtensionMenu(GameObject menu, bool isStatic = false);
-        void OnStartLoadScene();
-        void OnLoadScene();
-        void OnLoadSceneFeature();
-        void OnUnloadSceneFeature();
-        void OnExperienceStarting();
-        void OnExperienceStarted();
-
         #endregion
 
-        void OnSwitchManager(int source);
+        void OnSwitchManager(int source); //Todo Send  to NetworkCallbacks
 
-        #region Camera Callbacks
-
-        void OnStandby(bool status);
-
-        void OnCameraChanged(Transform camera, string type);
-        void OnCameraLocked(Transform target);
-        #endregion
 
     }
 
@@ -57,14 +39,6 @@ namespace Twinny.UI
             CallbackHub.UnregisterCallback<IUICallBacks>(this);
         }
 
-        public void OnCameraChanged(Transform camera, string type)
-        {
-            onCameraChanged?.Invoke();
-        }
-
-        public void OnCameraLocked(Transform target)
-        {
-        }
 
         public void OnExperienceFinished(bool isRunning)
         {

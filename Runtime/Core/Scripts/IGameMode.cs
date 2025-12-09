@@ -1,3 +1,8 @@
+
+using System.Threading.Tasks;
+using System;
+using UnityEngine.SceneManagement;
+
 namespace Twinny.Core
 {
     public interface IGameMode
@@ -13,8 +18,9 @@ namespace Twinny.Core
         void Update();
 
         void StartExperience();
-        void ChangeScene(string sceneName);
-        void ChangeScene(int sceneBuildIndex);
+        Task<Scene> ChangeScene(int buildIndex, Action<float> onSceneLoading = null);
+        Task<Scene> ChangeScene(string sceneName, Action<float> onSceneLoading = null);
+
         void NavigateTo(int landMarkIndex);
     }
 

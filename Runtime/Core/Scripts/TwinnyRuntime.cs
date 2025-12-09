@@ -65,7 +65,7 @@ namespace Twinny.Core
                 AssetDatabase.CreateFolder("Assets", "Resources");
             }
 
-            // Cria instância do ScriptableObject
+            // Cria instï¿½ncia do ScriptableObject
             T asset = CreateInstance<T>();
 
             // Salva como arquivo .asset
