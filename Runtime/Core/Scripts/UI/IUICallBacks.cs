@@ -11,13 +11,15 @@ namespace Twinny.UI
     {
        void OnHudStatusChanged(bool status);
         #region Experience Callbacks
-        void OnLoadExtensionMenu(GameObject menu, bool isStatic = false);
+      //  void OnLoadExtensionMenu(GameObject menu, bool isStatic = false);
         #endregion
 
-        void OnSwitchManager(int source); //Todo Send  to NetworkCallbacks
+     //   void OnSwitchManager(int source); //Todo Send  to NetworkCallbacks
 
 
     }
+
+    /*
 
     [Serializable] public class OnCameraChangedEvent : UnityEvent { }
     [Serializable] public class OnLoadScene : UnityEvent { }
@@ -98,4 +100,5 @@ namespace Twinny.UI
         }
 
     }
+    */
 }

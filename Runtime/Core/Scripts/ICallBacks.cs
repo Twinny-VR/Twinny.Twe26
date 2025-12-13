@@ -17,9 +17,10 @@ namespace Twinny.Core
         void OnExperienceStarting();
         void OnExperienceStarted();
         void OnExperienceEnding();
-        void OnExperienceEnded();
+        void OnExperienceEnded(bool isRunning);
         void OnSceneLoadStart(string sceneName);
         void OnSceneLoaded(Scene scene);
+        void OnTeleportToLandMark(int landMarkIndex);
         #endregion
     }
 
