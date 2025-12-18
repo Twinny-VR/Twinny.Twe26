@@ -17,8 +17,8 @@ namespace Twinny.Core
         // Called once per frame while in the current state.
         void Update();
 
-         Task StartExperience(int buildIndex,int landMarkIndex = -1);
-         Task StartExperience(string sceneName,int landMarkIndex = -1);
+         Task StartExperience(int buildIndex,int landMarkIndex);
+         Task StartExperience(string sceneName,int landMarkIndex);
          void RestartExperience();
         Task<Scene> ChangeScene(int buildIndex, int landMarkIndex = -1, Action<float> onSceneLoading = null);
         Task<Scene> ChangeScene(string sceneName, int landMarkIndex = -1, Action<float> onSceneLoading = null);
