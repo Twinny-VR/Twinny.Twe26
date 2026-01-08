@@ -12,8 +12,7 @@ namespace Twinny.Navigation
     [Serializable]
     public class LandMarkNode : MonoBehaviour
     {
-        public bool changeParent;
-        public Transform newParent;
+        public Transform changeParent;
 
         [Header("NAVIGATION")]
         public LandMarkNode north;
