@@ -21,68 +21,70 @@ namespace Twinny.Core
         void OnSceneLoadStart(string sceneName);
         void OnSceneLoaded(Scene scene);
         void OnTeleportToLandMark(int landMarkIndex);
+        void OnSkyboxHDRIChanged(Material material);
+
         #endregion
     }
 
-/*
-    [Serializable]
-    public class CallBackEvents : ICallbacks
-    {
-        public OnLoadScene onLoadScene;
-
-        public CallBackEvents()
+    /*
+        [Serializable]
+        public class CallBackEvents : ICallbacks
         {
-            CallbackHub.RegisterCallback<ICallbacks>(this);
-        }
-        public void OnPlatformInitializing() { }
-        public void OnPlatformInitialized() { }
+            public OnLoadScene onLoadScene;
 
-        public void Unregister()
-        {
-            CallbackHub.UnregisterCallback<ICallbacks>(this);
-        }
+            public CallBackEvents()
+            {
+                CallbackHub.RegisterCallback<ICallbacks>(this);
+            }
+            public void OnPlatformInitializing() { }
+            public void OnPlatformInitialized() { }
 
-        public void OnExperienceFinished(bool isRunning)
-        {
-        }
+            public void Unregister()
+            {
+                CallbackHub.UnregisterCallback<ICallbacks>(this);
+            }
 
-        public void OnExperienceReady()
-        {
-        }
+            public void OnExperienceFinished(bool isRunning)
+            {
+            }
 
-        public void OnExperienceStarted()
-        {
-        }
+            public void OnExperienceReady()
+            {
+            }
 
-        public void OnExperienceStarting()
-        {
-        }
-        public void OnLoadScene()
-        {
-            onLoadScene?.Invoke();
-        }
+            public void OnExperienceStarted()
+            {
+            }
 
-        public void OnLoadSceneFeature()
-        {
+            public void OnExperienceStarting()
+            {
+            }
+            public void OnLoadScene()
+            {
+                onLoadScene?.Invoke();
+            }
+
+            public void OnLoadSceneFeature()
+            {
+            }
+
+
+            public void OnStandby(bool status)
+            {
+            }
+
+            public void OnSceneLoadStart()
+            {
+            }
+
+            public void OnSwitchManager(int source)
+            {
+            }
+
+            public void OnUnloadSceneFeature()
+            {
+            }
+
         }
-
-
-        public void OnStandby(bool status)
-        {
-        }
-
-        public void OnSceneLoadStart()
-        {
-        }
-
-        public void OnSwitchManager(int source)
-        {
-        }
-
-        public void OnUnloadSceneFeature()
-        {
-        }
-
-    }
-*/
+    */
 }

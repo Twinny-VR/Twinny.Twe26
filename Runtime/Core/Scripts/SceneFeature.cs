@@ -25,32 +25,16 @@ namespace Twinny.Core
 
         public bool fadeOnAwake = true;
 
-        public bool ready;
-
         protected override void Start()
         {
             base.Start();
             if(_sceneSkyBox != null)
-            SetHDRI(_sceneSkyBox);
+            TwinnyManager.SetHDRI(_sceneSkyBox);
         }
 
         public virtual void TeleportToLandMark(int landMarkIndex) { }
 
-        protected virtual async void SetHDRI(Material hdri)
-        {
 
-            await Task.Yield();
-
-            if (hdri == null) hdri = TwinnyRuntime.GetInstance<TwinnyRuntime>().defaultSkybox;
-
-            if (RenderSettings.skybox != hdri)
-                    {
-                        RenderSettings.skybox = hdri;
-                        DynamicGI.UpdateEnvironment();
-                    }
-            ready = true;
-
-        }
 
     }
 }

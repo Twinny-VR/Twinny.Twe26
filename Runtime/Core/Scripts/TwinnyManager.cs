@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.IO;
+using System.Threading.Tasks;
 using Concept.Core;
 using Concept.Helpers;
 
@@ -197,5 +198,48 @@ namespace Twinny.Core
             }
 
         }
+
+        public static async void SetHDRI(Material hdri)
+        {
+            await Task.Yield();
+
+            if (hdri == null) hdri = TwinnyRuntime.GetInstance<TwinnyRuntime>().defaultSkybox;
+
+            if (RenderSettings.skybox != hdri)
+            {
+                RenderSettings.skybox = hdri;
+                DynamicGI.UpdateEnvironment();
+            }
+
+            CallbackHub.CallAction<ICallbacks>((callback) => callback.OnSkyboxHDRIChanged(hdri));
+
+        }
+        public static async void SetHDRIRotation(float angle)
+        {
+            await Task.Yield();
+            await Task.Yield();
+            if (!RenderSettings.skybox) { Debug.LogWarning("[SceneFeature] Warning! The Skybox Material has not been defined."); return; }
+
+
+            angle = angle % 360;
+
+            if (angle < 0)
+            {
+                angle += 360;
+            }
+
+            float rotationOffset = 0;
+
+            if (angle > 0)
+                rotationOffset = 360f - angle;
+            else
+                rotationOffset = angle + 360;
+
+
+            rotationOffset = Mathf.Clamp(rotationOffset, 0, 360);
+
+            RenderSettings.skybox.SetFloat("_Rotation", rotationOffset);
+        }
+
     }
 }
