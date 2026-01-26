@@ -48,7 +48,7 @@ namespace Twinny.Core
             string defaultKeyStore = IOExtensions.GetPackageAbsolutePath(PACKAGE_NAME);
             string currentKeyStore = PlayerSettings.Android.keystoreName;
             string path = Path.Combine(Directory.GetParent(Application.dataPath).FullName, currentKeyStore);
-
+            /*
             bool overwrite = (string.IsNullOrEmpty(currentKeyStore) || !File.Exists(path));
 
             if(overwrite)
@@ -60,6 +60,7 @@ namespace Twinny.Core
                 EditorUtility.SetDirty(UnityEditor.AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/ProjectSettings.asset")[0]);
                 AssetDatabase.SaveAssets();
             }
+            */
 #endif
             GetCurrentPlatform();
             var locale = CultureInfo.CurrentCulture.ToString();
