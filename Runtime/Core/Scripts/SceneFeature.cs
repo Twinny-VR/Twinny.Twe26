@@ -5,16 +5,6 @@ using UnityEngine;
 
 namespace Twinny.Core
 {
-    /// <summary>
-    /// Scene layout type VR(Virtual), MR(Mixed), MOBILE(Mobile)
-    /// </summary>
-    [Serializable]
-    public enum SceneType
-    {
-        VR,//Virtual Reallity
-        MR,//Mixed Reallity
-        MOBILE //Mobile
-    }
 
     public abstract class SceneFeature : TSingleton<SceneFeature>
     {

@@ -23,15 +23,16 @@ namespace Twinny.UI
             m_fadeScreen.alpha = 1.0f;
         }
 
-        public static void EnsureInstance(bool hidden = false) {
+        public static void EnsureInstance() {
             if(Instance != null) return;
             GameObject.Instantiate(Resources.Load<CanvasTransition>("CanvasTransition"));
+
         }
 
-        public static void FadeScreen(bool fadeIn, float fadeTime, float delay = 0f, Action<bool> callback = null)
+        public static void FadeScreen(bool fadeIn, float fadeTime, float delay = 0f, Action<bool> callback = null, RenderMode renderMode = RenderMode.ScreenSpaceCamera)
         {
             if (Instance == null) EnsureInstance();
-            
+            Instance.m_overlayScreen.renderMode = renderMode;
             if (Instance.m_fadeCoroutine != null) Instance.StopCoroutine(Instance.m_fadeCoroutine);
 
             Instance.m_fadeCoroutine = Instance.StartCoroutine(Instance.FadeCoroutine(fadeIn, fadeTime, delay, callback));
@@ -43,9 +44,10 @@ namespace Twinny.UI
         /// </summary>
         /// <param name="fadeIn">true to show, false to hide.</param>
         /// <param name="callback">bool return: Callback function (true for hided, false for showing)</param>
-        public static async Task<bool> FadeScreenAsync(bool fadeIn, float fadeTime, float delay = default)
+        public static async Task<bool> FadeScreenAsync(bool fadeIn, float fadeTime, float delay = default, RenderMode renderMode = RenderMode.ScreenSpaceCamera)
         {
             if (Instance == null) EnsureInstance();
+            Instance.m_overlayScreen.renderMode = renderMode;
 
             await Task.Delay((int)(delay * 1000));
 
