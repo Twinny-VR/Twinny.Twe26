@@ -1,0 +1,94 @@
+# Context: Unity UPM Package Development
+This is a standalone Unity Package Manager (UPM) package written in **C#**.
+It must be compatible with being imported as a **local or remote package** via `manifest.json`.
+
+---
+
+## Frontend Stack: UI Toolkit (Editor & Runtime UI)
+- **Technologies:** UXML (Structure) and USS (Styling).
+- **Critical Restriction:** DO NOT generate standard Web CSS.
+- **Critical Restriction 2:** NO INLINE STYLES. Do not use the `style` attribute inside UXML tags.
+- **Styling Rule:** Always use external or internal USS via the `<Style>` tag. Reference classes using the `class` attribute.
+
+### USS Constraints
+- Use **ONLY Flexbox** for layouts.
+- **PROHIBITED:**
+  - `display: grid`
+  - `position: fixed`
+  - `z-index`
+  - `calc()`
+  - Browser-based animations
+- Use **Unity-specific properties** only (e.g., `-unity-text-align`, `-unity-font-style`).
+
+### UXML Constraints
+- Use **Unity UI Toolkit tags only**:
+  - `<ui:VisualElement>`
+  - `<ui:Button>`
+  - `<ui:Label>`
+  - `<ui:TextField>`
+  - `<ui:ListView>`
+  - `<ui:ScrollView>`
+- Do not use HTML or web-specific elements.
+
+---
+
+## C# Environment & Package Rules
+- APIs allowed:
+  - `UnityEngine`
+  - `UnityEditor` (Editor assemblies only)
+  - `UnityEngine.UIElements`
+- This package must work when imported as:
+  - Local package
+  - Git package
+  - Scoped registry package
+- Do NOT use absolute asset paths outside the package scope.
+- Prefer `PackageRoot/Runtime` and `PackageRoot/Editor` folder separation.
+
+---
+
+## Architecture & Refactoring Rules (Unity C#)
+
+These rules apply whenever refactoring, generating, or modifying C# code in this package.
+
+### Assembly & Folder Structure
+- Separate assemblies:
+  - `*.Runtime` → No references to `UnityEditor`
+  - `*.Editor` → Editor-only code
+- Editor assemblies must be limited to:
+  - `Include Platforms: Editor`
+- Keep public APIs in `Runtime` minimal and stable.
+
+### Design Principles
+- Follow **SOLID principles**
+- Prefer **composition over inheritance**
+- Use **ScriptableObjects** for shared configuration and data assets
+- Avoid static state unless explicitly required
+
+### Code Style & Formatting
+- **Maximum line width:** 120 columns per line
+- **One responsibility per file**
+- **Function size limit:** Do not create methods longer than **40 lines**
+- Use **explicit access modifiers** (`public`, `internal`, `private`)
+- Prefer **interfaces** for public APIs and services
+
+### Performance & Safety
+- Avoid **LINQ in hot paths** or per-frame code (`Update`, `FixedUpdate`, `OnGUI`)
+- Avoid GC allocations in:
+  - Per-frame loops
+  - UI rebuild paths
+- Cache references to components and UI elements
+- Validate serialized fields in `OnValidate()`
+
+### UI Toolkit Refactoring Rules
+- Do not rebuild UI trees every frame
+- Use `Bind()` and `SerializedObject` for Editor inspectors
+- Prefer `VisualTreeAsset.CloneTree()` for UI instantiation
+- Separate **UXML structure**, **USS styling**, and **C# logic** into distinct files
+
+---
+
+## Output Expectations
+- Preserve package structure and naming conventions
+- Prefer splitting files over expanding existing ones
+- Do not introduce breaking API changes unless explicitly requested
+- Ensure all public APIs are documented with XML comments

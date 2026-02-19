@@ -49,7 +49,12 @@ namespace Twinny.UI
             if (Instance == null) EnsureInstance();
             Instance.m_overlayScreen.renderMode = renderMode;
 
-            await Task.Delay((int)(delay * 1000));
+            float delayTimer = 0f;
+            while (delayTimer < delay)
+            {
+                delayTimer += Time.deltaTime;
+                await Task.Yield();
+            }
 
             isTransitioning = true;
             float startAlpha = Instance.m_fadeScreen.alpha;
