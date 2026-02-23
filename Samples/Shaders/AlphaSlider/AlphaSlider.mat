@@ -84,15 +84,16 @@ Material:
     - _RENDERTYPE: 0
     - _SCOPE: 1
     - _Smoothness: 0.533
-    - _Step: 1.72
+    - _Step: 1
     - _Thickness: 0
     - _Tile: 1
-    - _WorldYLocation: 55
+    - _WorldYLocation: 0
+    - _XRMotionVectorsPass: 1
     m_Colors:
-    - _BaseColor: {r: 0, g: 0, b: 0, a: 0}
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _CutoffLimits: {r: 0, g: 1, b: 0, a: 0}
     - _EmissiveColor: {r: 1, g: 0, b: 0, a: 1}
-    - _InsideColor: {r: 0, g: 0, b: 0, a: 1}
+    - _InsideColor: {r: 1, g: 1, b: 1, a: 1}
     - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _UV: {r: 1, g: 1, b: 0, a: 0}
   m_BuildTextureStacks: []
