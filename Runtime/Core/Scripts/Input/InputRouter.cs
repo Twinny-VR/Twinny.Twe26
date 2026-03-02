@@ -49,12 +49,12 @@ public class InputRouter : TSingleton<InputRouter>
         );
     }
 
-    public void Select(GameObject target)
+    public void Select(SelectionData selection)
     {
-        if (_logEvents) Debug.Log($"[Input] Select {target?.name}");
+        if (_logEvents) Debug.Log($"[Input] Select {selection.Target?.name}");
 
         CallbackHub.CallAction<IInputCallbacks>(
-            cb => cb.OnSelect(target)
+            cb => cb.OnSelect(selection)
         );
     }
 

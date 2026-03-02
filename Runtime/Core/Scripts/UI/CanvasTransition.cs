@@ -25,7 +25,7 @@ namespace Twinny.UI
 
         public static void EnsureInstance() {
             if(Instance != null) return;
-            GameObject.Instantiate(Resources.Load<CanvasTransition>("CanvasTransition"));
+            GameObject.Instantiate(Resources.Load<CanvasTransition>("UI/CanvasTransition"));
 
         }
 

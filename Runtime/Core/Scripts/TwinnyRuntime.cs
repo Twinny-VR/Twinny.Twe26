@@ -23,8 +23,11 @@ namespace Twinny.Core
         [Range(60,120)]
         public int targetFrameRate = 90;
 
-        public Material defaultSkybox;
+        [Header("Scenes")]
+        [Tooltip("Default scene name used by runtime systems.")]
+        public string defaultSceneName = "MockupScene";
 
+        public Material defaultSkybox;
 
         [Header("WEB HOOK")]
         [Tooltip("This system is only for realeses build version.")]

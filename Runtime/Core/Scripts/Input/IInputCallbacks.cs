@@ -1,5 +1,3 @@
-using UnityEngine;
-
 namespace Twinny.Core.Input
 {
 
@@ -8,7 +6,7 @@ namespace Twinny.Core.Input
         void OnPrimaryDown(float x, float y);
         void OnPrimaryUp(float x, float y);
         void OnPrimaryDrag(float dx, float dy);
-        void OnSelect(GameObject target);
+        void OnSelect(SelectionData selection);
         void OnCancel();
         void OnZoom(float delta);
     }
