@@ -83,7 +83,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SkyB:
-        m_Texture: {fileID: 8900000, guid: 69eb3eaaf0b234a428f624de875b7ec0, type: 3}
+        m_Texture: {fileID: 8900000, guid: d62bfb8980805c747895ef929af141fc, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecGlossMap:
@@ -115,7 +115,7 @@ Material:
     - _AddPrecomputedVelocity: 0
     - _AlphaClip: 0
     - _AlphaToMask: 0
-    - _Blend: 0.5
+    - _Blend: 1
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
     - _ClearCoatMask: 0
@@ -140,7 +140,9 @@ Material:
     - _Rotation: 0
     - _SCOPE: 0
     - _SkyAExposure: 1
+    - _SkyARotation: 0
     - _SkyBExposure: 4
+    - _SkyBRotation: 0
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
