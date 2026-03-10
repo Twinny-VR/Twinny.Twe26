@@ -10,11 +10,11 @@ namespace Twinny.Editor.Shaders
     [CustomEditor(typeof(SkyboxBlender))]
     public class SkyboxBlenderEditor : UnityEditor.Editor
     {
-        private const string UxmlPath = "Packages/Twinny.Twe26/Editor/Shaders/Resources/SkyboxBlenderEditor.uxml";
-        private const string UssPath = "Packages/Twinny.Twe26/Editor/Shaders/Resources/SkyboxBlenderEditor.uss";
+        private const string UxmlPath = "Packages/com.twinny.twe26/Editor/Shaders/Resources/SkyboxBlenderEditor.uxml";
+        private const string UssPath = "Packages/com.twinny.twe26/Editor/Shaders/Resources/SkyboxBlenderEditor.uss";
         private const string SkyboxPropertyName = "m_skyBox";
         private const string ExpectedShaderGraphPath =
-            "Packages/Twinny.Twe26/Runtime/Core/Scripts/Shaders/SkyboxBlender/SG_SkyboxBlender.shadergraph";
+            "Packages/com.twinny.twe26/Runtime/Core/Scripts/Shaders/SkyboxBlender/SG_SkyboxBlender.shadergraph";
         private const string ExpectedShaderNameHint = "SG_SkyboxBlender";
 
         private Shader _expectedShader;

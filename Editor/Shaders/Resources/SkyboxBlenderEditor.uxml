@@ -1,5 +1,5 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:Style src="project://database/Packages/Twinny.Twe26/Editor/Shaders/Resources/SkyboxBlenderEditor.uss" />
+    <ui:Style src="project://database/Packages/com.twinny.twe26/Editor/Shaders/Resources/SkyboxBlenderEditor.uss" />
     <ui:VisualElement class="root">
         <ui:Label text="Skybox Blender" class="title" />
         <ui:VisualElement name="fieldsRoot" class="fields" />
