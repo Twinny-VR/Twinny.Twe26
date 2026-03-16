@@ -1,7 +1,7 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <Style src="project://database/Packages/com.twinny.twe26/Editor/Shared/MobileCinemachineSharedEditor.uss?fileID=7433441132597879392&amp;guid=cf8171fe745b8294b88e7b484b6de88b&amp;type=3#MobileCinemachineSharedEditor"/>
+    <Style src="project://database/Packages/com.twinny.twe26/Editor/Shared/ComponentInspectorTemplate.uss?fileID=7433441132597879392&amp;guid=cf8171fe745b8294b88e7b484b6de88b&amp;type=3#ComponentInspectorTemplate"/>
     <ui:VisualElement class="root">
-        <ui:VisualElement class="hero">
+        <ui:VisualElement name="Header" class="hero">
             <ui:VisualElement name="heroIcon" class="hero-icon"/>
             <ui:VisualElement class="hero-text">
                 <ui:Label text="Orbital Camera Control" class="hero-title"/>
@@ -11,22 +11,6 @@
                 <ui:Image name="Logo" style="background-image: resource(&quot;Sprites/TwinnyLogo&quot;); width: 102px; height: 26px; position: relative; flex-grow: 1; align-content: stretch; align-self: stretch; justify-content: space-between;"/>
                 <ui:Label text="engine" style="font-size: 8px; -unity-font-definition: resource(&quot;FlatSkin/Font/Roboto-Medium&quot;); color: rgb(255, 255, 255); flex-grow: 1; align-self: flex-end; -unity-text-align: lower-right; margin-right: 6px; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; position: absolute; bottom: 0; right: 0; align-items: flex-end; margin-top: 0;"/>
             </ui:VisualElement>
-        </ui:VisualElement>
-        <ui:VisualElement name="handlerSection" class="section">
-            <ui:Label text="Gesture Tuning" class="section-title"/>
-            <ui:VisualElement name="handlerFields" class="fields"/>
-        </ui:VisualElement>
-        <ui:VisualElement name="cutoffSection" class="section">
-            <ui:Label text="Cutoff Settings" class="section-title"/>
-            <ui:VisualElement name="cutoffFields" class="fields"/>
-        </ui:VisualElement>
-        <ui:VisualElement name="actionsSection" class="section">
-            <ui:Label text="Quick Actions" class="section-title"/>
-            <ui:VisualElement name="actionsFields" class="fields"/>
-        </ui:VisualElement>
-        <ui:VisualElement name="cinemachineSection" class="section">
-            <ui:Label text="Cinemachine Setup" class="section-title"/>
-            <ui:VisualElement name="cinemachineFields" class="fields"/>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
