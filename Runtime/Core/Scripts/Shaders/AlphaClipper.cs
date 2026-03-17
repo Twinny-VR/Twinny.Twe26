@@ -1,17 +1,71 @@
+using Concept.Helpers;
+using System.Collections;
 using UnityEngine;
 
 namespace Twinny.Shaders
 {
 
-    public class AlphaClipper : MonoBehaviour
+    public class AlphaClipper : TSingleton<AlphaClipper>
     {
+        private const string CutoffHeightPropertyName = "_CutoffHeight";
 
-        private static int s_activeInstanceCount;
+        [SerializeField] private Vector2 _minMaxWallHeight = new Vector2(0,3f);
+        [SerializeField] private float _transitionDuration = 0.35f;
 
-        public static bool HasActiveInstance => s_activeInstanceCount > 0;
+        public static Vector2 MinMaxWallHeight = new Vector2(0,3f);
+        private Coroutine _cutoffTransitionRoutine;
 
-        private void OnEnable() => s_activeInstanceCount++;
-        private void OnDisable() => s_activeInstanceCount = Mathf.Max(0, s_activeInstanceCount - 1);
+
+        private void OnEnable() => MinMaxWallHeight = _minMaxWallHeight;
+
+        private void OnDisable() => MinMaxWallHeight = new Vector2(0, 3f);
+
+        public static void TransitionCutoffHeight(float targetHeight)
+        {
+            if (!Instance)
+            {
+                Shader.SetGlobalFloat(CutoffHeightPropertyName, ClampHeight(targetHeight));
+                return;
+            }
+
+            Instance.AnimateCutoffHeight(targetHeight);
+        }
+
+        private void AnimateCutoffHeight(float targetHeight)
+        {
+            float clampedTarget = ClampHeight(targetHeight);
+
+            if (_cutoffTransitionRoutine != null)
+                StopCoroutine(_cutoffTransitionRoutine);
+
+            _cutoffTransitionRoutine = StartCoroutine(AnimateCutoffHeightRoutine(clampedTarget));
+        }
+
+        private IEnumerator AnimateCutoffHeightRoutine(float targetHeight)
+        {
+            float startHeight = Shader.GetGlobalFloat(CutoffHeightPropertyName);
+            float duration = Mathf.Max(0.0001f, _transitionDuration);
+            float elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsed / duration);
+                float height = Mathf.Lerp(startHeight, targetHeight, Mathf.SmoothStep(0f, 1f, t));
+                Shader.SetGlobalFloat(CutoffHeightPropertyName, height);
+                yield return null;
+            }
+
+            Shader.SetGlobalFloat(CutoffHeightPropertyName, targetHeight);
+            _cutoffTransitionRoutine = null;
+        }
+
+        private static float ClampHeight(float height)
+        {
+            float minHeight = Mathf.Min(MinMaxWallHeight.x, MinMaxWallHeight.y);
+            float maxHeight = Mathf.Max(MinMaxWallHeight.x, MinMaxWallHeight.y);
+            return Mathf.Clamp(height, minHeight, maxHeight);
+        }
     }
 
 }

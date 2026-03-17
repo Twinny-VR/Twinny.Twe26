@@ -84,7 +84,7 @@ Material:
     - _RENDERTYPE: 0
     - _SCOPE: 1
     - _Smoothness: 0.533
-    - _Step: 1
+    - _Step: 160
     - _Thickness: 0
     - _Tile: 1
     - _WorldYLocation: 0
