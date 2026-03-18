@@ -1,0 +1,80 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-5255192144725122852
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Editor::UnityEditor.Rendering.Universal.AssetVersion
+  version: 10
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: AlphaSliderWater
+  m_Shader: {fileID: -6465566751694194690, guid: 961eef3162b64a54cb97f1c03d15aecb, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _POSITION_ABSOLUTE_WORLD
+  - _SCOPE_MATERIAL
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses:
+  - MOTIONVECTORS
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - Vector1_1E64D73: 0.05
+    - Vector1_1F362672: 1.44
+    - Vector1_7AC8BAD: 1
+    - Vector1_921AC543: -0.3
+    - Vector1_9C9A14CF: 0.001
+    - Vector1_F6B82B81: 0.02
+    - _Deep_Distance: 2.9
+    - _Deep_Strength: 0.9
+    - _POSITION: 4
+    - _QueueControl: 0
+    - _QueueOffset: 0
+    - _SCOPE: 0
+    - _Specular: 0.3
+    - _Step: 26.17
+    - _Wave1_Dimension: 0.01
+    - _Wave2_Dimension: 30
+    - _Waves_Distortion: 0.25
+    m_Colors:
+    - _Color: {r: 0, g: 0.6901961, b: 0.65079045, a: 0.48235294}
+    - _DeepColor: {r: 0, g: 0.18852642, b: 0.21960774, a: 0.46666667}
+    - _SurfaceColor: {r: 0, g: 0.8273835, b: 1, a: 0.4862745}
+    - _Wave1_Speed: {r: -0.015, g: -0.001, b: 0, a: 0}
+    - _Wave2_Speed: {r: 0.01, g: 0.01, b: 0, a: 0}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
