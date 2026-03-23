@@ -11,20 +11,34 @@ namespace Twinny.Shaders
 
         [SerializeField] private Vector2 _minMaxWallHeight = new Vector2(0,3f);
         [SerializeField] private float _transitionDuration = 0.35f;
+        [SerializeField] private CutoffGroup[] _cutoffGroups;
 
         public static Vector2 MinMaxWallHeight = new Vector2(0,3f);
         private Coroutine _cutoffTransitionRoutine;
 
 
-        private void OnEnable() => MinMaxWallHeight = _minMaxWallHeight;
+        private void OnEnable()
+        {
+            MinMaxWallHeight = _minMaxWallHeight;
+            UpdateCutoffGroupsVisibility(Shader.GetGlobalFloat(CutoffHeightPropertyName));
+        }
 
         private void OnDisable() => MinMaxWallHeight = new Vector2(0, 3f);
+
+        public static void SetCutoffHeight(float targetHeight, bool clampHeight = false)
+        {
+            float height = clampHeight ? ClampHeight(targetHeight) : targetHeight;
+            Shader.SetGlobalFloat(CutoffHeightPropertyName, height);
+
+            if (Instance)
+                Instance.UpdateCutoffGroupsVisibility(height);
+        }
 
         public static void TransitionCutoffHeight(float targetHeight)
         {
             if (!Instance)
             {
-                Shader.SetGlobalFloat(CutoffHeightPropertyName, ClampHeight(targetHeight));
+                SetCutoffHeight(targetHeight, true);
                 return;
             }
 
@@ -52,11 +66,11 @@ namespace Twinny.Shaders
                 elapsed += Time.deltaTime;
                 float t = Mathf.Clamp01(elapsed / duration);
                 float height = Mathf.Lerp(startHeight, targetHeight, Mathf.SmoothStep(0f, 1f, t));
-                Shader.SetGlobalFloat(CutoffHeightPropertyName, height);
+                SetCutoffHeight(height);
                 yield return null;
             }
 
-            Shader.SetGlobalFloat(CutoffHeightPropertyName, targetHeight);
+            SetCutoffHeight(targetHeight);
             _cutoffTransitionRoutine = null;
         }
 
@@ -65,6 +79,24 @@ namespace Twinny.Shaders
             float minHeight = Mathf.Min(MinMaxWallHeight.x, MinMaxWallHeight.y);
             float maxHeight = Mathf.Max(MinMaxWallHeight.x, MinMaxWallHeight.y);
             return Mathf.Clamp(height, minHeight, maxHeight);
+        }
+
+        private void UpdateCutoffGroupsVisibility(float cutoffHeight)
+        {
+            if (_cutoffGroups == null || _cutoffGroups.Length == 0)
+                return;
+
+            for (int i = 0; i < _cutoffGroups.Length; i++)
+            {
+                CutoffGroup cutoffGroup = _cutoffGroups[i];
+                if (!cutoffGroup)
+                    continue;
+
+                float groupHeight = cutoffGroup.transform.position.y + cutoffGroup.offsetHeight;
+                bool shouldShow = cutoffHeight >= groupHeight;
+                if (cutoffGroup.gameObject.activeSelf != shouldShow)
+                    cutoffGroup.gameObject.SetActive(shouldShow);
+            }
         }
     }
 

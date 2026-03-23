@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using System.Linq;
+using Twinny.Shaders;
 using UnityEditor;
 using UnityEngine;
 
@@ -76,11 +77,11 @@ namespace Twinny.Editor.Shaders
                 }
 
                 if (allGlobalScope)
-                    Shader.SetGlobalFloat(CutoffHeightPropertyName, newValue);
+                    AlphaClipper.SetCutoffHeight(newValue);
             }
             else if (!hasMixedValues && allGlobalScope)
             {
-                Shader.SetGlobalFloat(CutoffHeightPropertyName, firstValue);
+                AlphaClipper.SetCutoffHeight(firstValue);
             }
         }
 
@@ -97,7 +98,7 @@ namespace Twinny.Editor.Shaders
             if (!materials.All(IsGlobalScope))
                 return;
 
-            Shader.SetGlobalFloat(CutoffHeightPropertyName, materials[0].GetFloat(StepPropertyName));
+            AlphaClipper.SetCutoffHeight(materials[0].GetFloat(StepPropertyName));
         }
 
         private static bool IsGlobalScope(Material material)
@@ -112,7 +113,7 @@ namespace Twinny.Editor.Shaders
             if (state != PlayModeStateChange.EnteredEditMode)
                 return;
 
-            Shader.SetGlobalFloat(CutoffHeightPropertyName, EditorResetCutoffHeight);
+            AlphaClipper.SetCutoffHeight(EditorResetCutoffHeight);
         }
     }
 }

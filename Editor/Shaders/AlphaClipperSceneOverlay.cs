@@ -144,7 +144,7 @@ namespace Twinny.Editor.Shaders
 
         private static void ApplyCutoffHeight(float height)
         {
-            Shader.SetGlobalFloat(CutoffHeightPropertyName, height);
+            AlphaClipper.SetCutoffHeight(height);
             SceneView.RepaintAll();
         }
 

@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using Twinny.Shaders;
 using UnityEditor;
 using UnityEngine;
 
@@ -27,7 +28,7 @@ namespace Twinny.Editor.Shaders
             bool isGlobalScope = IsGlobalScope(targetMaterial);
 
             if (isGlobalScope)
-                Shader.SetGlobalFloat(CutoffHeightPropertyName, stepValue);
+                AlphaClipper.SetCutoffHeight(stepValue);
 
             EditorGUILayout.Space();
             EditorGUILayout.HelpBox(
