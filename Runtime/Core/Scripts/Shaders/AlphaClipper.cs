@@ -1,5 +1,6 @@
 using Concept.Helpers;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Twinny.Shaders
@@ -8,10 +9,10 @@ namespace Twinny.Shaders
     public class AlphaClipper : TSingleton<AlphaClipper>
     {
         private const string CutoffHeightPropertyName = "_CutoffHeight";
+        private static readonly HashSet<CutoffGroup> s_CutoffGroups = new();
 
         [SerializeField] private Vector2 _minMaxWallHeight = new Vector2(0,3f);
         [SerializeField] private float _transitionDuration = 0.35f;
-        [SerializeField] private CutoffGroup[] _cutoffGroups;
 
         public static Vector2 MinMaxWallHeight = new Vector2(0,3f);
         private Coroutine _cutoffTransitionRoutine;
@@ -24,6 +25,25 @@ namespace Twinny.Shaders
         }
 
         private void OnDisable() => MinMaxWallHeight = new Vector2(0, 3f);
+
+        public static void Register(CutoffGroup cutoffGroup)
+        {
+            if (!cutoffGroup)
+                return;
+
+            s_CutoffGroups.Add(cutoffGroup);
+
+            if (Instance)
+                Instance.UpdateCutoffGroupVisibility(cutoffGroup, Shader.GetGlobalFloat(CutoffHeightPropertyName));
+        }
+
+        public static void Unregister(CutoffGroup cutoffGroup)
+        {
+            if (!cutoffGroup)
+                return;
+
+            s_CutoffGroups.Remove(cutoffGroup);
+        }
 
         public static void SetCutoffHeight(float targetHeight, bool clampHeight = false)
         {
@@ -83,20 +103,28 @@ namespace Twinny.Shaders
 
         private void UpdateCutoffGroupsVisibility(float cutoffHeight)
         {
-            if (_cutoffGroups == null || _cutoffGroups.Length == 0)
+            if (s_CutoffGroups.Count == 0)
                 return;
 
-            for (int i = 0; i < _cutoffGroups.Length; i++)
+            CutoffGroup[] cutoffGroups = new CutoffGroup[s_CutoffGroups.Count];
+            s_CutoffGroups.CopyTo(cutoffGroups);
+
+            for (int i = 0; i < cutoffGroups.Length; i++)
             {
-                CutoffGroup cutoffGroup = _cutoffGroups[i];
+                CutoffGroup cutoffGroup = cutoffGroups[i];
                 if (!cutoffGroup)
                     continue;
 
-                float groupHeight = cutoffGroup.transform.position.y + cutoffGroup.offsetHeight;
-                bool shouldShow = cutoffHeight >= groupHeight;
-                if (cutoffGroup.gameObject.activeSelf != shouldShow)
-                    cutoffGroup.gameObject.SetActive(shouldShow);
+                UpdateCutoffGroupVisibility(cutoffGroup, cutoffHeight);
             }
+        }
+
+        private void UpdateCutoffGroupVisibility(CutoffGroup cutoffGroup, float cutoffHeight)
+        {
+            float groupHeight = cutoffGroup.transform.position.y + cutoffGroup.offsetHeight;
+            bool shouldShow = cutoffHeight >= groupHeight;
+            if (cutoffGroup.gameObject.activeSelf != shouldShow)
+                cutoffGroup.gameObject.SetActive(shouldShow);
         }
     }
 

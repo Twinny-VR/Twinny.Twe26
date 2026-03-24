@@ -7,7 +7,7 @@
                 <ui:Label text="Orbital Camera Control" class="hero-title"/>
                 <ui:Label text="Mobile gestures + Cinemachine 3" class="hero-subtitle"/>
             </ui:VisualElement>
-            <ui:VisualElement style="width: 102px; height: 26px; position: absolute; top: 0; right: 0;">
+            <ui:VisualElement style="width: 102px; height: 26px; position: absolute; top: 4px; right: 2px;">
                 <ui:Image name="Logo" style="background-image: resource(&quot;Sprites/TwinnyLogo&quot;); width: 102px; height: 26px; position: relative; flex-grow: 1; align-content: stretch; align-self: stretch; justify-content: space-between;"/>
                 <ui:Label text="engine" style="font-size: 8px; -unity-font-definition: resource(&quot;FlatSkin/Font/Roboto-Medium&quot;); color: rgb(255, 255, 255); flex-grow: 1; align-self: flex-end; -unity-text-align: lower-right; margin-right: 6px; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; position: absolute; bottom: 0; right: 0; align-items: flex-end; margin-top: 0;"/>
             </ui:VisualElement>
