@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using Twinny.Navigation;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -288,3 +289,4 @@ namespace Twinny.Editor.Navigation
         }
     }
 }
+#endif

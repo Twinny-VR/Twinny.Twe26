@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using Twinny.Shaders;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -242,3 +243,4 @@ namespace Twinny.Editor.Shaders
         }
     }
 }
+#endif
