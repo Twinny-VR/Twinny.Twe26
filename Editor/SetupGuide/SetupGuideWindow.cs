@@ -13,6 +13,7 @@ using UnityEditor;
 using UnityEditor.PackageManager;
 using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.Video;
 using UnityEngine.UIElements;
 
 
@@ -20,7 +21,16 @@ namespace Twinny.Editor
 {
     public class SetupGuideWindow : EditorWindow
     {
-        private static Dictionary<string, Type> m_moduleRegistry = new Dictionary<string, Type>();
+        private const int SplashDurationMs = 3000;
+        private const string SplashVideoPath = "Packages/com.twinny.twe26/Editor/SetupGuide/Resources/Media/TESplash.mp4";
+
+        private class RegisteredModule
+        {
+            public ModuleInfo info;
+            public Type type;
+        }
+
+        private static readonly Dictionary<string, RegisteredModule> m_moduleRegistry = new Dictionary<string, RegisteredModule>();
 
         public static SetupGuideWindow instance;
         private static Vector2 _windowSize = new Vector2(800, 600);
@@ -33,6 +43,14 @@ namespace Twinny.Editor
 
         private VisualElement m_root;
         private VisualElement m_splashScreen;
+        private IMGUIContainer m_splashOverlay;
+        private bool m_showLegacySplash;
+        private bool m_modulesInitialized;
+        private double m_splashEndTime;
+        private VideoClip m_splashClip;
+        private GameObject m_videoHost;
+        private VideoPlayer m_videoPlayer;
+        private RenderTexture m_splashRenderTexture;
         
         private ScrollView m_SideBar;
         private VisualElement m_MainContent;
@@ -62,18 +80,34 @@ namespace Twinny.Editor
             var script = MonoScript.FromScriptableObject(this);
             var fullPath = AssetDatabase.GetAssetPath(script);
             m_RootPath = Path.GetDirectoryName(fullPath);
-            // _plusIcon = EditorImageUtils.LoadSpriteFromProjectPath(PLUS_ICON_PATH);
+            EditorApplication.update -= OnEditorUpdate;
+            EditorApplication.update += OnEditorUpdate;
+        }
+
+        private void OnDisable()
+        {
+            EditorApplication.update -= OnEditorUpdate;
+            StopLegacySplash();
+        }
+
+        private void OnDestroy()
+        {
+            StopLegacySplash();
         }
 
         public void CreateGUI()
         {
+            m_modulesInitialized = false;
+
             // Carrega o layout
             m_root = _config.visualTreeAsset.Instantiate();
             m_root.style.flexGrow = 1;
             rootVisualElement.Add(m_root);
+            CreateSplashOverlay();
 
             m_splashScreen = m_root.Q<VisualElement>("SplashScreen");
-            m_splashScreen.style.display = DisplayStyle.Flex;
+            if (m_splashScreen != null)
+                m_splashScreen.style.display = DisplayStyle.None;
 
             // Pega referências
             m_SideBar = m_root.Q<ScrollView>("Sidebar");
@@ -93,24 +127,185 @@ namespace Twinny.Editor
             m_overlay = m_root.Q<VisualElement>("Overlay");
             hint = m_root.Q<HintElement>("HintElement");
             HintElementExtensions.SetHint(hint);
-            VideoElement videoElement = m_splashScreen.Q<VideoElement>();
-            videoElement.style.display = DisplayStyle.None;
-            videoElement.OnVideoReady += () =>
-            {
-            videoElement.style.display = DisplayStyle.Flex;
+
             InitSections();
-            };
+            StartLegacySplash();
         }
 
         private async void InitSections()
         {
-            foreach (var module in _config.modules)
-               await AddSidebarButton(module);
+            var modules = m_moduleRegistry.Values
+                .Where(module => module.info != null && !string.Equals(module.info.moduleName, "welcome", StringComparison.OrdinalIgnoreCase))
+                .OrderBy(module => module.info.sortOrder)
+                .ThenBy(module => module.info.moduleDisplayName, StringComparer.OrdinalIgnoreCase)
+                .Select(module => module.info);
+
+            foreach (var module in modules)
+                await AddSidebarButton(module);
+
             ShowSection("welcome");
+            m_modulesInitialized = true;
+        }
 
-               await Task.Delay(3000);
-          m_splashScreen.style.display = DisplayStyle.None;
+        private void StartLegacySplash()
+        {
+            StopLegacySplash();
 
+            m_splashClip = AssetDatabase.LoadAssetAtPath<VideoClip>(SplashVideoPath);
+            if (m_splashClip == null)
+                return;
+
+            m_videoHost = EditorUtility.CreateGameObjectWithHideFlags(
+                "SetupGuideSplashVideo",
+                HideFlags.HideAndDontSave,
+                typeof(VideoPlayer));
+
+            m_videoPlayer = m_videoHost.GetComponent<VideoPlayer>();
+            m_videoPlayer.playOnAwake = false;
+            m_videoPlayer.waitForFirstFrame = true;
+            m_videoPlayer.skipOnDrop = false;
+            m_videoPlayer.isLooping = false;
+            m_videoPlayer.audioOutputMode = VideoAudioOutputMode.None;
+            m_videoPlayer.source = VideoSource.VideoClip;
+            m_videoPlayer.clip = m_splashClip;
+            m_videoPlayer.renderMode = VideoRenderMode.RenderTexture;
+
+            EnsureSplashRenderTexture();
+            m_videoPlayer.targetTexture = m_splashRenderTexture;
+            m_videoPlayer.Prepare();
+            m_videoPlayer.Play();
+
+            m_showLegacySplash = true;
+            m_splashEndTime = EditorApplication.timeSinceStartup + (SplashDurationMs / 1000.0);
+            if (m_splashOverlay != null)
+            {
+                m_splashOverlay.style.display = DisplayStyle.Flex;
+                m_splashOverlay.MarkDirtyRepaint();
+            }
+        }
+
+        private void StopLegacySplash()
+        {
+            m_showLegacySplash = false;
+            if (m_splashOverlay != null)
+                m_splashOverlay.style.display = DisplayStyle.None;
+
+            if (m_videoPlayer != null)
+            {
+                m_videoPlayer.Stop();
+                m_videoPlayer.targetTexture = null;
+            }
+
+            if (m_videoHost != null)
+                DestroyImmediate(m_videoHost);
+
+            m_videoHost = null;
+            m_videoPlayer = null;
+            m_splashClip = null;
+
+            if (m_splashRenderTexture != null)
+            {
+                m_splashRenderTexture.Release();
+                DestroyImmediate(m_splashRenderTexture);
+                m_splashRenderTexture = null;
+            }
+        }
+
+        private void EnsureSplashRenderTexture()
+        {
+            int width = Mathf.Max(1, Mathf.RoundToInt(position.width));
+            int height = Mathf.Max(1, Mathf.RoundToInt(position.height));
+
+            if (m_splashRenderTexture != null &&
+                m_splashRenderTexture.width == width &&
+                m_splashRenderTexture.height == height)
+                return;
+
+            if (m_splashRenderTexture != null)
+            {
+                m_splashRenderTexture.Release();
+                DestroyImmediate(m_splashRenderTexture);
+            }
+
+            m_splashRenderTexture = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32)
+            {
+                hideFlags = HideFlags.HideAndDontSave
+            };
+            m_splashRenderTexture.Create();
+
+            if (m_videoPlayer != null)
+                m_videoPlayer.targetTexture = m_splashRenderTexture;
+        }
+
+        private void OnEditorUpdate()
+        {
+            if (!m_showLegacySplash)
+                return;
+
+            if (m_modulesInitialized && EditorApplication.timeSinceStartup >= m_splashEndTime)
+            {
+                StopLegacySplash();
+                m_splashOverlay?.MarkDirtyRepaint();
+                return;
+            }
+
+            EnsureSplashRenderTexture();
+            m_splashOverlay?.MarkDirtyRepaint();
+        }
+
+        private void CreateSplashOverlay()
+        {
+            if (m_splashOverlay != null)
+                return;
+
+            m_splashOverlay = new IMGUIContainer(DrawLegacySplash)
+            {
+                pickingMode = PickingMode.Ignore
+            };
+            m_splashOverlay.style.position = Position.Absolute;
+            m_splashOverlay.style.left = 0;
+            m_splashOverlay.style.top = 0;
+            m_splashOverlay.style.right = 0;
+            m_splashOverlay.style.bottom = 0;
+            m_splashOverlay.style.display = DisplayStyle.None;
+            rootVisualElement.Add(m_splashOverlay);
+        }
+
+        private void DrawLegacySplash()
+        {
+            if (!m_showLegacySplash)
+                return;
+
+            Rect splashRect = new Rect(0, 0, position.width, position.height);
+            EditorGUI.DrawRect(splashRect, Color.black);
+
+            if (Event.current.type == EventType.Repaint && m_splashRenderTexture != null)
+                GUI.DrawTexture(splashRect, m_splashRenderTexture, ScaleMode.StretchToFill, false);
+
+            DrawSplashOverlay(splashRect);
+        }
+
+        private void DrawSplashOverlay(Rect splashRect)
+        {
+            Rect yearRect = new Rect(splashRect.x + (splashRect.width * .65f), splashRect.y + (splashRect.height * 0.54f), 120f, 28f);
+            Rect loadingRect = new Rect(splashRect.x + 12f, splashRect.yMax - 34f, 220f, 24f);
+
+            GUIStyle yearStyle = new GUIStyle(EditorStyles.label)
+            {
+                alignment = TextAnchor.UpperRight,
+                fontStyle = FontStyle.Bold,
+                fontSize = 18,
+                normal = { textColor = new Color(210f / 255f, 255f / 255f, 173f / 255f, 0.72f) }
+            };
+
+            GUIStyle loadingStyle = new GUIStyle(EditorStyles.label)
+            {
+                fontSize = 12,
+                normal = { textColor = Color.white }
+            };
+
+            GUI.Label(yearRect, "2026", yearStyle);
+            GUI.Label(loadingRect, "Loading Modules...", loadingStyle);
         }
 
         private async Task AddSidebarButton(ModuleInfo module)
@@ -163,9 +358,9 @@ namespace Twinny.Editor
 
             m_MainContent.Clear(); // limpa conteúdo antigo
 
-            if (m_moduleRegistry.TryGetValue(name, out var moduleType))
+            if (m_moduleRegistry.TryGetValue(name, out var registeredModule))
             {
-                var module = (IModuleSetup)Activator.CreateInstance(moduleType);
+                var module = (IModuleSetup)Activator.CreateInstance(registeredModule.type);
                 var moduleElement = module as VisualElement;
                 moduleElement.AddToClassList("content");
                 m_MainContent.Add(moduleElement);
@@ -231,7 +426,6 @@ namespace Twinny.Editor
 
         private void CreatePropertyFieldsForClass(SerializedProperty parentProperty, VisualElement container)
         {
-            return;
             container.Clear();
 
             SerializedProperty iterator = parentProperty.Copy();
@@ -386,6 +580,15 @@ namespace Twinny.Editor
 
         public static void RegisterModule(string name, Type moduleType)
         {
+            RegisterModule(new ModuleInfo
+            {
+                moduleName = name,
+                moduleDisplayName = name
+            }, moduleType);
+        }
+
+        public static void RegisterModule(ModuleInfo moduleInfo, Type moduleType)
+        {
 
             if (!typeof(IModuleSetup).IsAssignableFrom(moduleType))
             {
@@ -393,7 +596,23 @@ namespace Twinny.Editor
                 return;
             }
 
-            m_moduleRegistry[name] = moduleType;
+            if (moduleInfo == null)
+            {
+                Debug.LogError($"Module info for {moduleType.Name} is null.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(moduleInfo.moduleName))
+            {
+                Debug.LogError($"Module info for {moduleType.Name} must define moduleName.");
+                return;
+            }
+
+            m_moduleRegistry[moduleInfo.moduleName.ToLowerInvariant()] = new RegisteredModule
+            {
+                info = moduleInfo,
+                type = moduleType
+            };
         }
 
 

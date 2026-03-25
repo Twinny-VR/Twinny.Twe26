@@ -6,6 +6,7 @@
         "ConceptFactory.Core.Editor",
         "ConceptFactory.UIEssentials",
         "Twinny.Core",
+        "com.conceptfactory.smarttools",
         "com.conceptfactory.smarttools.editor"
     ],
     "includePlatforms": [],

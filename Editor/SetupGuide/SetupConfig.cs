@@ -7,8 +7,5 @@ namespace Twinny.Editor
     public class SetupConfig : ScriptableObject
     {
         public VisualTreeAsset visualTreeAsset;
-        public ModuleInfo[] modules;
-
-
     }
 }

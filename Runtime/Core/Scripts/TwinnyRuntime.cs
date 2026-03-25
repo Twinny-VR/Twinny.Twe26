@@ -12,7 +12,7 @@ namespace Twinny.Core
     public class TwinnyRuntime : ScriptableObject
     {
         private static TwinnyRuntime m_instance;
-        public BuildType ambientType;
+        public BuildType buildType;
         public bool useCanvasTransition = true;
         [ShowIf("useCanvasTransition")]
         [Tooltip("Value in seconds")]

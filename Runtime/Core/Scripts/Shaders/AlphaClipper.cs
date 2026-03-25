@@ -6,6 +6,7 @@ using UnityEngine;
 namespace Twinny.Shaders
 {
 
+    [ExecuteAlways]
     public class AlphaClipper : TSingleton<AlphaClipper>
     {
         private const string CutoffHeightPropertyName = "_CutoffHeight";
@@ -24,6 +25,12 @@ namespace Twinny.Shaders
             UpdateCutoffGroupsVisibility(Shader.GetGlobalFloat(CutoffHeightPropertyName));
         }
 
+        private void OnValidate()
+        {
+            MinMaxWallHeight = _minMaxWallHeight;
+            UpdateCutoffGroupsVisibility(Shader.GetGlobalFloat(CutoffHeightPropertyName));
+        }
+
         private void OnDisable() => MinMaxWallHeight = new Vector2(0, 3f);
 
         public static void Register(CutoffGroup cutoffGroup)
@@ -32,9 +39,7 @@ namespace Twinny.Shaders
                 return;
 
             s_CutoffGroups.Add(cutoffGroup);
-
-            if (Instance)
-                Instance.UpdateCutoffGroupVisibility(cutoffGroup, Shader.GetGlobalFloat(CutoffHeightPropertyName));
+            UpdateCutoffGroupVisibility(cutoffGroup, Shader.GetGlobalFloat(CutoffHeightPropertyName));
         }
 
         public static void Unregister(CutoffGroup cutoffGroup)
@@ -49,9 +54,7 @@ namespace Twinny.Shaders
         {
             float height = clampHeight ? ClampHeight(targetHeight) : targetHeight;
             Shader.SetGlobalFloat(CutoffHeightPropertyName, height);
-
-            if (Instance)
-                Instance.UpdateCutoffGroupsVisibility(height);
+            UpdateCutoffGroupsVisibility(height);
         }
 
         public static void TransitionCutoffHeight(float targetHeight)
@@ -101,7 +104,7 @@ namespace Twinny.Shaders
             return Mathf.Clamp(height, minHeight, maxHeight);
         }
 
-        private void UpdateCutoffGroupsVisibility(float cutoffHeight)
+        private static void UpdateCutoffGroupsVisibility(float cutoffHeight)
         {
             if (s_CutoffGroups.Count == 0)
                 return;
@@ -119,12 +122,11 @@ namespace Twinny.Shaders
             }
         }
 
-        private void UpdateCutoffGroupVisibility(CutoffGroup cutoffGroup, float cutoffHeight)
+        private static void UpdateCutoffGroupVisibility(CutoffGroup cutoffGroup, float cutoffHeight)
         {
             float groupHeight = cutoffGroup.transform.position.y + cutoffGroup.offsetHeight;
             bool shouldShow = cutoffHeight >= groupHeight;
-            if (cutoffGroup.gameObject.activeSelf != shouldShow)
-                cutoffGroup.gameObject.SetActive(shouldShow);
+            cutoffGroup.SetChildrenVisible(shouldShow);
         }
     }
 
