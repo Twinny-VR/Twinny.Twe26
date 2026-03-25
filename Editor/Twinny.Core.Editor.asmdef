@@ -5,6 +5,7 @@
         "ConceptFactory.Core",
         "ConceptFactory.Core.Editor",
         "ConceptFactory.UIEssentials",
+        "ConceptFactory.UIEssentials.Editor",
         "Twinny.Core",
         "com.conceptfactory.smarttools",
         "com.conceptfactory.smarttools.editor"
