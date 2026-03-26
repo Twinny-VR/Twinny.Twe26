@@ -15,7 +15,9 @@
             <engine:TextField name="VersionField" label="Versão:" />
             <engine:VisualElement name="IconContainer" />
         </engine:ScrollView>
-        <Concept.SmartTools.Editor.SmartBuilderView />
+        <engine:VisualElement name="SmartBuilderHost" class="smart-builder-host">
+            <Concept.SmartTools.Editor.SmartBuilderView name="EmbeddedSmartBuilderView" />
+        </engine:VisualElement>
         <engine:VisualElement name="Warning" class="smart-build" style="flex-grow: 1; justify-content: center; display: none;">
             <engine:Label name="WarningLabel" text="Escolha uma plataforma para instalar ou configurar." class="info" />
         </engine:VisualElement>

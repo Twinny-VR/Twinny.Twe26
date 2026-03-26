@@ -1,5 +1,7 @@
 ﻿#if UNITY_EDITOR
 using Concept.SmartTools;
+using Concept.SmartTools.Editor;
+using Concept.UI;
 using Twinny.Core;
 using Twinny.Core.Editor;
 using UnityEditor;
@@ -16,6 +18,7 @@ namespace Twinny.Editor
         static WelcomeWindowRegister()
         {
             SetupGuideWindow.RegisterModule(PACKAGE_NAME, typeof(WelcomeWindow));
+            SmartBuilderWindow.OpenSmartWindow = tabIndex => SetupGuideWindow.OpenSection(PACKAGE_NAME, tabIndex);
         }
     }
 
@@ -30,7 +33,8 @@ namespace Twinny.Editor
         private Label m_packageNameLabel;
         private Label m_versionLabel;
         private Button m_updatePackageButton;
-        private ScrollView m_smartBuildSettings;
+        private VisualElement m_smartBuildSettings;
+        private SmartBuilderView m_smartBuilderView;
 
         public WelcomeWindow()
         {
@@ -49,7 +53,8 @@ namespace Twinny.Editor
             m_packageNameLabel = this.Q<Label>("PackageNameLabel");
             m_versionLabel = this.Q<Label>("VersionLabel");
             m_updatePackageButton = this.Q<Button>("UpdatePackageButton");
-            m_smartBuildSettings = this.Q<ScrollView>("SmartBuildSettings");
+            m_smartBuildSettings = this.Q<VisualElement>("SmartBuilderHost");
+            m_smartBuilderView = this.Q<SmartBuilderView>("EmbeddedSmartBuilderView");
 
             if (m_updatePackageButton != null)
             {
@@ -81,6 +86,7 @@ namespace Twinny.Editor
 
             var company = Application.companyName;
             m_companyField.value = company;
+            m_smartBuilderView?.SelectTab(tabIndex);
         }
 
         public void OnApply()
@@ -89,3 +95,5 @@ namespace Twinny.Editor
     }
 }
 #endif
+
+

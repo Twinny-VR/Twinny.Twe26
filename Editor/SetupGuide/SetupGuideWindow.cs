@@ -1,6 +1,7 @@
 ﻿#if UNITY_EDITOR
 
 using Concept.SmartTools;
+using Concept.SmartTools.Editor;
 using Concept.UI;
 using Concept.Editor;
 using System;
@@ -34,6 +35,9 @@ namespace Twinny.Editor
 
         public static SetupGuideWindow instance;
         private static Vector2 _windowSize = new Vector2(800, 600);
+        private static string s_pendingSectionName = "welcome";
+        private static int s_pendingSectionTabIndex;
+        private static bool s_hasPlayedFullSplashThisSession;
 
 
         [SerializeField] private SetupConfig _config;
@@ -45,6 +49,7 @@ namespace Twinny.Editor
         private VisualElement m_splashScreen;
         private IMGUIContainer m_splashOverlay;
         private bool m_showLegacySplash;
+        private bool m_playFullSplashThisOpen;
         private bool m_modulesInitialized;
         private double m_splashEndTime;
         private VideoClip m_splashClip;
@@ -54,6 +59,7 @@ namespace Twinny.Editor
         
         private ScrollView m_SideBar;
         private VisualElement m_MainContent;
+        private SmartBuilderView m_embeddedSmartBuilderView;
 
 
         //Overlay Elements
@@ -63,20 +69,39 @@ namespace Twinny.Editor
         private static string m_RootPath;
 
         public string packageVersion = "?.?.?";
+        public VisualElement OverlayHost => m_overlay;
 
 
         [MenuItem("Twinny/Setup Guide &T")]
         public static void Open()
         {
-            instance = CreateInstance<SetupGuideWindow>();
+            if (instance == null)
+                instance = Resources.FindObjectsOfTypeAll<SetupGuideWindow>().FirstOrDefault();
+
+            if (instance == null)
+                instance = CreateInstance<SetupGuideWindow>();
+
             var pkgInfo = SmartTools.GetPackageInfo(typeof(TwinnyManager));
             instance.titleContent = new GUIContent(pkgInfo.displayName);
             instance.minSize = instance.maxSize = _windowSize;
             instance.ShowUtility();
-            var path = AssetDatabase.GetAssetPath(MonoScript.FromScriptableObject(instance));
+            instance.Focus();
+        }
+
+        public static void OpenSection(string sectionName, int tabIndex = 0)
+        {
+            string requestedSectionName = string.IsNullOrWhiteSpace(sectionName) ? "welcome" : sectionName.ToLowerInvariant();
+            int requestedTabIndex = tabIndex;
+            s_pendingSectionName = requestedSectionName;
+            s_pendingSectionTabIndex = requestedTabIndex;
+            Open();
+
+            TryShowSection(requestedSectionName, requestedTabIndex);
+            EditorApplication.delayCall += () => TryShowSection(requestedSectionName, requestedTabIndex);
         }
         private void OnEnable()
         {
+            instance = this;
             var script = MonoScript.FromScriptableObject(this);
             var fullPath = AssetDatabase.GetAssetPath(script);
             m_RootPath = Path.GetDirectoryName(fullPath);
@@ -87,12 +112,22 @@ namespace Twinny.Editor
         private void OnDisable()
         {
             EditorApplication.update -= OnEditorUpdate;
+            if (m_embeddedSmartBuilderView != null && m_embeddedSmartBuilderView.BlocksHostClose)
+            {
+               // Debug.Log("[SetupGuideWindow] Window is closing during upload. Cancelling embedded Smart Builder upload.");//
+                m_embeddedSmartBuilderView.CancelActiveUpload();
+            }
+            BindEmbeddedSmartBuilderView(null);
             StopLegacySplash();
+            if (ReferenceEquals(instance, this))
+                instance = null;
         }
 
         private void OnDestroy()
         {
             StopLegacySplash();
+            if (ReferenceEquals(instance, this))
+                instance = null;
         }
 
         public void CreateGUI()
@@ -143,13 +178,15 @@ namespace Twinny.Editor
             foreach (var module in modules)
                 await AddSidebarButton(module);
 
-            ShowSection("welcome");
+            ShowSection(s_pendingSectionName, s_pendingSectionTabIndex);
             m_modulesInitialized = true;
         }
 
         private void StartLegacySplash()
         {
             StopLegacySplash();
+
+            m_playFullSplashThisOpen = !s_hasPlayedFullSplashThisSession;
 
             m_splashClip = AssetDatabase.LoadAssetAtPath<VideoClip>(SplashVideoPath);
             if (m_splashClip == null)
@@ -176,7 +213,10 @@ namespace Twinny.Editor
             m_videoPlayer.Play();
 
             m_showLegacySplash = true;
-            m_splashEndTime = EditorApplication.timeSinceStartup + (SplashDurationMs / 1000.0);
+            m_splashEndTime = m_playFullSplashThisOpen
+                ? EditorApplication.timeSinceStartup + (SplashDurationMs / 1000.0)
+                : EditorApplication.timeSinceStartup;
+            s_hasPlayedFullSplashThisSession = true;
             if (m_splashOverlay != null)
             {
                 m_splashOverlay.style.display = DisplayStyle.Flex;
@@ -242,7 +282,8 @@ namespace Twinny.Editor
             if (!m_showLegacySplash)
                 return;
 
-            if (m_modulesInitialized && EditorApplication.timeSinceStartup >= m_splashEndTime)
+            bool splashFinished = !m_playFullSplashThisOpen || EditorApplication.timeSinceStartup >= m_splashEndTime;
+            if (m_modulesInitialized && splashFinished)
             {
                 StopLegacySplash();
                 m_splashOverlay?.MarkDirtyRepaint();
@@ -351,10 +392,26 @@ namespace Twinny.Editor
             }
         }
 
+        private static void TryShowSection(string sectionName, int tabIndex)
+        {
+            if (instance == null || instance.m_root == null || !instance.m_modulesInitialized || instance.m_MainContent == null)
+                return;
+
+            instance.ShowSection(sectionName, tabIndex);
+        }
+
 
         void ShowSection(string name)
         {
+            ShowSection(name, 0);
+        }
+
+        void ShowSection(string name, int tabIndex)
+        {
             name = name.ToLowerInvariant();
+
+            if (name == "welcome" && m_welcomeButton != null)
+                SelectButton(m_welcomeButton);
 
             m_MainContent.Clear(); // limpa conteúdo antigo
 
@@ -364,14 +421,58 @@ namespace Twinny.Editor
                 var moduleElement = module as VisualElement;
                 moduleElement.AddToClassList("content");
                 m_MainContent.Add(moduleElement);
-                module.OnShowSection(this);
+                BindEmbeddedSmartBuilderView(moduleElement?.Q<SmartBuilderView>());
+                module.OnShowSection(this, tabIndex);
             }
             else
             {
+                BindEmbeddedSmartBuilderView(null);
                 Debug.LogWarning($"Módulo '{name}' não registrado.");
             }
 
+            s_pendingSectionName = "welcome";
+            s_pendingSectionTabIndex = 0;
 
+
+        }
+
+        private void BindEmbeddedSmartBuilderView(SmartBuilderView newView)
+        {
+            if (ReferenceEquals(m_embeddedSmartBuilderView, newView))
+            {
+                UpdateCloseGuardState();
+                return;
+            }
+
+            if (m_embeddedSmartBuilderView != null)
+            {
+                m_embeddedSmartBuilderView.HostCloseGuardChanged -= OnEmbeddedSmartBuilderCloseGuardChanged;
+                m_embeddedSmartBuilderView.SetOverlayHost(null);
+            }
+
+            m_embeddedSmartBuilderView = newView;
+
+            if (m_embeddedSmartBuilderView != null)
+            {
+                m_embeddedSmartBuilderView.HostCloseGuardChanged += OnEmbeddedSmartBuilderCloseGuardChanged;
+                m_embeddedSmartBuilderView.SetOverlayHost(m_overlay);
+            }
+
+            UpdateCloseGuardState();
+        }
+
+        private void OnEmbeddedSmartBuilderCloseGuardChanged(SmartBuilderView _)
+        {
+            UpdateCloseGuardState();
+        }
+
+        private void UpdateCloseGuardState()
+        {
+            bool blocked = m_embeddedSmartBuilderView != null && m_embeddedSmartBuilderView.BlocksHostClose;
+            hasUnsavedChanges = blocked;
+            saveChangesMessage = blocked
+                ? m_embeddedSmartBuilderView.HostCloseBlockedMessage
+                : string.Empty;
         }
 
         public void ShowSection(ModuleInfo section)
