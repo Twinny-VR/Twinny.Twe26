@@ -36,6 +36,7 @@ namespace Twinny.Editor.Shaders
         private const float RangeFieldWidth = 40f;
         private const float RangeLabelWidth = 16f;
         private const float RangeFieldHeight = 16f;
+        private const double PanelReopenCooldownSeconds = 0.15d;
         private const string ExpandedPanelTitle = "Alpha\nClipper";
         private const string MissingAlphaClipperWarning = "No AlphaClipper found in scene.";
         private const string MultipleAlphaClippersWarning = "More than one AlphaClipper found in scene.";
@@ -46,6 +47,9 @@ namespace Twinny.Editor.Shaders
         private static VisualElement s_FloatingPanelRoot;
         private static IMGUIContainer s_FloatingPanelContainer;
         private static VisualElement s_LastAnchor;
+        private static VisualElement s_PanelHostRoot;
+        private static SceneView s_OwningSceneView;
+        private static double s_LastPanelClosedAt;
 
         static AlphaClipperTool()
         {
@@ -54,6 +58,9 @@ namespace Twinny.Editor.Shaders
 
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+
+            EditorApplication.update -= OnEditorUpdate;
+            EditorApplication.update += OnEditorUpdate;
 
             SceneView.duringSceneGui -= OnSceneViewGUI;
             SceneView.duringSceneGui += OnSceneViewGUI;
@@ -73,12 +80,11 @@ namespace Twinny.Editor.Shaders
 
         internal static void TogglePanel(VisualElement anchor)
         {
-            if (anchor != null)
-                AttachFloatingPanelTo(anchor);
-
             int alphaClipperCount = FindSceneAlphaClippers().Length;
             if (alphaClipperCount != 1)
             {
+                ClosePanel();
+
                 if (alphaClipperCount > 1)
                     ShowWarningOnAllSceneViews(MultipleAlphaClippersWarning);
                 else
@@ -87,29 +93,44 @@ namespace Twinny.Editor.Shaders
                 return;
             }
 
-            s_IsPanelVisible = !s_IsPanelVisible;
-            if (s_IsPanelVisible && s_LastAnchor != null)
-                AttachFloatingPanelTo(s_LastAnchor);
+            if (anchor == null)
+                return;
 
+            if (s_IsPanelVisible)
+            {
+                ClosePanel();
+                return;
+            }
+
+            // Prevent the same click that dismissed the panel from reopening it immediately.
+            if (EditorApplication.timeSinceStartup - s_LastPanelClosedAt < PanelReopenCooldownSeconds)
+                return;
+
+            s_PanelDrawer ??= new PanelDrawer();
+            AttachFloatingPanelTo(anchor);
+            s_IsPanelVisible = true;
             UpdateFloatingPanelVisibility();
             SceneView.RepaintAll();
         }
 
-        private static void ShowWarningOnAllSceneViews(string message)
+        private static void ClosePanel()
         {
-            foreach (SceneView sceneView in SceneView.sceneViews.OfType<SceneView>())
-                sceneView.ShowNotification(new GUIContent(message));
+            s_IsPanelVisible = false;
+            s_LastPanelClosedAt = EditorApplication.timeSinceStartup;
+            UnregisterHostCallbacks();
+            UpdateFloatingPanelVisibility();
+            SceneView.RepaintAll();
         }
 
         private static void AttachFloatingPanelTo(VisualElement anchor)
         {
-            if (anchor == null)
+            if (anchor == null || anchor.panel == null)
                 return;
 
             s_LastAnchor = anchor;
-            VisualElement root = anchor;
-            while (root.parent != null)
-                root = root.parent;
+            VisualElement root = anchor.panel.visualTree;
+            if (root == null)
+                return;
 
             bool needsRecreate = s_FloatingPanelRoot == null
                 || s_FloatingPanelContainer == null
@@ -123,6 +144,44 @@ namespace Twinny.Editor.Shaders
                 s_FloatingPanelRoot = CreateFloatingPanel();
                 root.Add(s_FloatingPanelRoot);
             }
+
+            s_OwningSceneView = FindSceneViewForPanel(root.panel);
+            RegisterHostCallbacks(root);
+            PositionFloatingPanel(anchor, root);
+        }
+
+        private static VisualElement CreateFloatingPanel()
+        {
+            VisualElement root = new VisualElement();
+            root.style.position = Position.Absolute;
+            root.style.width = PanelWidth;
+            root.style.minWidth = PanelWidth;
+            root.style.height = PanelHeight;
+            root.style.minHeight = PanelHeight;
+            root.style.backgroundColor = new Color(0.18f, 0.18f, 0.18f, 1f);
+            root.style.borderTopLeftRadius = 6f;
+            root.style.borderTopRightRadius = 6f;
+            root.style.borderBottomLeftRadius = 6f;
+            root.style.borderBottomRightRadius = 6f;
+            root.style.display = DisplayStyle.None;
+
+            s_FloatingPanelContainer = new IMGUIContainer(() => s_PanelDrawer?.Draw());
+            s_FloatingPanelContainer.style.position = Position.Absolute;
+            s_FloatingPanelContainer.style.left = 0f;
+            s_FloatingPanelContainer.style.top = 0f;
+            s_FloatingPanelContainer.style.width = PanelWidth;
+            s_FloatingPanelContainer.style.minWidth = PanelWidth;
+            s_FloatingPanelContainer.style.height = PanelHeight;
+            s_FloatingPanelContainer.style.minHeight = PanelHeight;
+            root.Add(s_FloatingPanelContainer);
+            root.schedule.Execute(() => s_FloatingPanelContainer?.MarkDirtyRepaint()).Every(100);
+            return root;
+        }
+
+        private static void PositionFloatingPanel(VisualElement anchor, VisualElement root)
+        {
+            if (anchor == null || root == null || s_FloatingPanelRoot == null)
+                return;
 
             float rootWidth = root.resolvedStyle.width;
             if (float.IsNaN(rootWidth) || rootWidth <= 0f)
@@ -145,37 +204,6 @@ namespace Twinny.Editor.Shaders
             s_FloatingPanelRoot.style.left = Mathf.Clamp(left, 0f, maxLeft);
             s_FloatingPanelRoot.style.top = Mathf.Clamp(top, 0f, maxTop);
             s_FloatingPanelRoot.style.right = StyleKeyword.Null;
-            s_FloatingPanelRoot.BringToFront();
-            UpdateFloatingPanelVisibility();
-        }
-
-        private static VisualElement CreateFloatingPanel()
-        {
-            s_PanelDrawer ??= new PanelDrawer();
-
-            VisualElement root = new VisualElement();
-            root.style.position = Position.Absolute;
-            root.style.width = PanelWidth;
-            root.style.minWidth = PanelWidth;
-            root.style.height = PanelHeight;
-            root.style.minHeight = PanelHeight;
-            root.style.backgroundColor = new Color(0.18f, 0.18f, 0.18f, 1f);
-            root.style.borderTopLeftRadius = 6f;
-            root.style.borderTopRightRadius = 6f;
-            root.style.borderBottomLeftRadius = 6f;
-            root.style.borderBottomRightRadius = 6f;
-
-            s_FloatingPanelContainer = new IMGUIContainer(s_PanelDrawer.Draw);
-            s_FloatingPanelContainer.style.position = Position.Absolute;
-            s_FloatingPanelContainer.style.left = 0f;
-            s_FloatingPanelContainer.style.top = 0f;
-            s_FloatingPanelContainer.style.width = PanelWidth;
-            s_FloatingPanelContainer.style.minWidth = PanelWidth;
-            s_FloatingPanelContainer.style.height = PanelHeight;
-            s_FloatingPanelContainer.style.minHeight = PanelHeight;
-            root.Add(s_FloatingPanelContainer);
-            root.schedule.Execute(() => s_FloatingPanelContainer?.MarkDirtyRepaint()).Every(100);
-            return root;
         }
 
         private static void UpdateFloatingPanelVisibility()
@@ -190,6 +218,74 @@ namespace Twinny.Editor.Shaders
             s_FloatingPanelContainer?.MarkDirtyRepaint();
         }
 
+        private static SceneView FindSceneViewForPanel(IPanel panel)
+        {
+            if (panel == null)
+                return null;
+
+            return SceneView.sceneViews
+                .OfType<SceneView>()
+                .FirstOrDefault(sceneView => sceneView != null && sceneView.rootVisualElement?.panel == panel);
+        }
+
+        private static void RegisterHostCallbacks(VisualElement root)
+        {
+            if (root == null || ReferenceEquals(s_PanelHostRoot, root))
+                return;
+
+            UnregisterHostCallbacks();
+            s_PanelHostRoot = root;
+            s_PanelHostRoot.RegisterCallback<PointerDownEvent>(OnHostPointerDown, TrickleDown.TrickleDown);
+        }
+
+        private static void UnregisterHostCallbacks()
+        {
+            if (s_PanelHostRoot != null)
+                s_PanelHostRoot.UnregisterCallback<PointerDownEvent>(OnHostPointerDown, TrickleDown.TrickleDown);
+
+            s_PanelHostRoot = null;
+            s_OwningSceneView = null;
+        }
+
+        private static void OnHostPointerDown(PointerDownEvent evt)
+        {
+            if (!s_IsPanelVisible)
+                return;
+
+            VisualElement target = evt.target as VisualElement;
+            if (target != null)
+            {
+                if (s_FloatingPanelRoot != null && (ReferenceEquals(target, s_FloatingPanelRoot) || s_FloatingPanelRoot.Contains(target)))
+                    return;
+
+                if (s_LastAnchor != null && (ReferenceEquals(target, s_LastAnchor) || s_LastAnchor.Contains(target)))
+                    return;
+            }
+
+            ClosePanel();
+        }
+
+        private static void OnEditorUpdate()
+        {
+            if (!s_IsPanelVisible)
+                return;
+
+            if (s_FloatingPanelRoot == null || s_FloatingPanelRoot.panel == null || s_LastAnchor == null || s_LastAnchor.panel == null)
+            {
+                ClosePanel();
+                return;
+            }
+
+            if (s_OwningSceneView != null && EditorWindow.focusedWindow != null && EditorWindow.focusedWindow != s_OwningSceneView)
+                ClosePanel();
+        }
+
+        private static void ShowWarningOnAllSceneViews(string message)
+        {
+            foreach (SceneView sceneView in SceneView.sceneViews.OfType<SceneView>())
+                sceneView.ShowNotification(new GUIContent(message));
+        }
+
         private static AlphaClipper[] FindSceneAlphaClippers()
         {
             return Object.FindObjectsByType<AlphaClipper>(FindObjectsInactive.Include, FindObjectsSortMode.None)
@@ -202,14 +298,22 @@ namespace Twinny.Editor.Shaders
             if (FindSceneAlphaClippers().Length == 1)
                 return;
 
-            s_IsPanelVisible = false;
-            s_LastAnchor = null;
-            UpdateFloatingPanelVisibility();
+            ClosePanel();
         }
 
-        private static void OnSceneViewGUI(SceneView _)
+        private static void OnSceneViewGUI(SceneView sceneView)
         {
             RefreshAllSceneViewOverlays();
+
+            if (!s_IsPanelVisible || sceneView == null || (s_OwningSceneView != null && sceneView != s_OwningSceneView))
+                return;
+
+            Event currentEvent = Event.current;
+            if (currentEvent == null)
+                return;
+
+            if (currentEvent.type == EventType.MouseDown && !IsPointInsidePanelOrAnchor(currentEvent.mousePosition))
+                ClosePanel();
         }
 
         private static void OnPlayModeStateChanged(PlayModeStateChange _)
@@ -441,6 +545,18 @@ namespace Twinny.Editor.Shaders
             float normalized = Mathf.InverseLerp(trackRect.yMax, trackRect.yMin, mouseY);
             return Mathf.Lerp(minHeight, maxHeight, normalized);
         }
+
+        private static bool IsPointInsidePanelOrAnchor(Vector2 point)
+        {
+            if (s_FloatingPanelRoot != null && s_FloatingPanelRoot.worldBound.Contains(point))
+                return true;
+
+            if (s_LastAnchor != null && s_LastAnchor.worldBound.Contains(point))
+                return true;
+
+            return false;
+        }
+
     }
 
     internal sealed class AlphaClipperToolbarButton : EditorToolbarButton
