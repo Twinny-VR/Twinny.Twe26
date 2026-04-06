@@ -4,6 +4,7 @@ using System.Linq;
 using Twinny.Shaders;
 using UnityEditor;
 using UnityEditor.Toolbars;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -47,9 +48,11 @@ namespace Twinny.Editor.Shaders
         private static VisualElement s_FloatingPanelRoot;
         private static IMGUIContainer s_FloatingPanelContainer;
         private static VisualElement s_LastAnchor;
-        private static VisualElement s_PanelHostRoot;
         private static SceneView s_OwningSceneView;
         private static double s_LastPanelClosedAt;
+
+        private static readonly List<EditorWindow> s_GlobalPointerWindows = new List<EditorWindow>();
+        private static readonly EventCallback<PointerDownEvent> s_OnGlobalPointerDown = OnGlobalPointerDown;
 
         static AlphaClipperTool()
         {
@@ -117,9 +120,10 @@ namespace Twinny.Editor.Shaders
         {
             s_IsPanelVisible = false;
             s_LastPanelClosedAt = EditorApplication.timeSinceStartup;
-            UnregisterHostCallbacks();
+            s_OwningSceneView = null;
             UpdateFloatingPanelVisibility();
             SceneView.RepaintAll();
+            EditorApplication.delayCall += UnregisterGlobalPointerCapture;
         }
 
         private static void AttachFloatingPanelTo(VisualElement anchor)
@@ -146,7 +150,7 @@ namespace Twinny.Editor.Shaders
             }
 
             s_OwningSceneView = FindSceneViewForPanel(root.panel);
-            RegisterHostCallbacks(root);
+            RegisterGlobalPointerCapture();
             PositionFloatingPanel(anchor, root);
         }
 
@@ -228,26 +232,44 @@ namespace Twinny.Editor.Shaders
                 .FirstOrDefault(sceneView => sceneView != null && sceneView.rootVisualElement?.panel == panel);
         }
 
-        private static void RegisterHostCallbacks(VisualElement root)
+        private static void RegisterGlobalPointerCapture()
         {
-            if (root == null || ReferenceEquals(s_PanelHostRoot, root))
-                return;
+            UnregisterGlobalPointerCapture();
 
-            UnregisterHostCallbacks();
-            s_PanelHostRoot = root;
-            s_PanelHostRoot.RegisterCallback<PointerDownEvent>(OnHostPointerDown, TrickleDown.TrickleDown);
+            foreach (EditorWindow window in Resources.FindObjectsOfTypeAll<EditorWindow>())
+            {
+                if (window == null)
+                    continue;
+
+                VisualElement root = window.rootVisualElement;
+                if (root == null)
+                    continue;
+
+                root.RegisterCallback<PointerDownEvent>(s_OnGlobalPointerDown, TrickleDown.TrickleDown);
+                s_GlobalPointerWindows.Add(window);
+            }
         }
 
-        private static void UnregisterHostCallbacks()
+        private static void UnregisterGlobalPointerCapture()
         {
-            if (s_PanelHostRoot != null)
-                s_PanelHostRoot.UnregisterCallback<PointerDownEvent>(OnHostPointerDown, TrickleDown.TrickleDown);
+            for (int i = 0; i < s_GlobalPointerWindows.Count; i++)
+            {
+                EditorWindow window = s_GlobalPointerWindows[i];
+                try
+                {
+                    if (window != null && window.rootVisualElement != null)
+                        window.rootVisualElement.UnregisterCallback<PointerDownEvent>(s_OnGlobalPointerDown, TrickleDown.TrickleDown);
+                }
+                catch
+                {
+                    // Janela já destruída.
+                }
+            }
 
-            s_PanelHostRoot = null;
-            s_OwningSceneView = null;
+            s_GlobalPointerWindows.Clear();
         }
 
-        private static void OnHostPointerDown(PointerDownEvent evt)
+        private static void OnGlobalPointerDown(PointerDownEvent evt)
         {
             if (!s_IsPanelVisible)
                 return;
@@ -312,7 +334,7 @@ namespace Twinny.Editor.Shaders
             if (currentEvent == null)
                 return;
 
-            if (currentEvent.type == EventType.MouseDown && !IsPointInsidePanelOrAnchor(currentEvent.mousePosition))
+            if (currentEvent.type == EventType.MouseDown && !IsPointInsidePanelOrAnchor(currentEvent.mousePosition, sceneView))
                 ClosePanel();
         }
 
@@ -546,12 +568,19 @@ namespace Twinny.Editor.Shaders
             return Mathf.Lerp(minHeight, maxHeight, normalized);
         }
 
-        private static bool IsPointInsidePanelOrAnchor(Vector2 point)
+        private static bool IsPointInsidePanelOrAnchor(Vector2 sceneGuiMousePosition, SceneView sceneView)
         {
-            if (s_FloatingPanelRoot != null && s_FloatingPanelRoot.worldBound.Contains(point))
+            if (s_FloatingPanelRoot == null || s_FloatingPanelRoot.panel == null)
+                return false;
+
+            IPanel panel = s_FloatingPanelRoot.panel;
+            Vector2 screenPoint = HandleUtility.GUIPointToScreenPixelCoordinate(sceneGuiMousePosition);
+            Vector2 panelPoint = RuntimePanelUtils.ScreenToPanel(panel, screenPoint);
+
+            if (s_FloatingPanelRoot.worldBound.Contains(panelPoint))
                 return true;
 
-            if (s_LastAnchor != null && s_LastAnchor.worldBound.Contains(point))
+            if (s_LastAnchor != null && s_LastAnchor.worldBound.Contains(panelPoint))
                 return true;
 
             return false;

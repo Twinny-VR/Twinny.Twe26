@@ -22,12 +22,14 @@ namespace Twinny.Shaders
         private void OnEnable()
         {
             MinMaxWallHeight = _minMaxWallHeight;
+            EnsureCutoffHeightAtLeastWallMax();
             UpdateCutoffGroupsVisibility(Shader.GetGlobalFloat(CutoffHeightPropertyName));
         }
 
         private void OnValidate()
         {
             MinMaxWallHeight = _minMaxWallHeight;
+            EnsureCutoffHeightAtLeastWallMax();
             UpdateCutoffGroupsVisibility(Shader.GetGlobalFloat(CutoffHeightPropertyName));
         }
 
@@ -102,6 +104,16 @@ namespace Twinny.Shaders
             float minHeight = Mathf.Min(MinMaxWallHeight.x, MinMaxWallHeight.y);
             float maxHeight = Mathf.Max(MinMaxWallHeight.x, MinMaxWallHeight.y);
             return Mathf.Clamp(height, minHeight, maxHeight);
+        }
+
+        private void EnsureCutoffHeightAtLeastWallMax()
+        {
+            float currentCutoff = Shader.GetGlobalFloat(CutoffHeightPropertyName);
+            float requiredMinCutoff = _minMaxWallHeight.y;
+            if (currentCutoff >= requiredMinCutoff)
+                return;
+
+            SetCutoffHeight(requiredMinCutoff);
         }
 
         private static void UpdateCutoffGroupsVisibility(float cutoffHeight)
