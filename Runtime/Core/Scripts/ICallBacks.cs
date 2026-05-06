@@ -1,6 +1,7 @@
 using System;
 using Concept.Core;
 using Twinny.Core;
+using Twinny.Navigation;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -20,6 +21,8 @@ namespace Twinny.Core
         void OnExperienceEnded(bool isRunning);
         void OnSceneLoadStart(string sceneName);
         void OnSceneLoaded(Scene scene);
+        void OnRequestLandMark(string landmarkGuid);
+        void OnRequestLandMark(Landmark landmark);
         void OnTeleportToLandMark(int landMarkIndex);
         void OnSkyboxHDRIChanged(Material material);
 
